@@ -10,11 +10,8 @@
     @author McKilla Gorilla
 */
 
-import axios from 'axios'
-axios.defaults.withCredentials = true;
-const api = axios.create({
-    baseURL: 'http://localhost:4000/store',
-})
+import { http } from '../../requests';
+const base = 'http://localhost:4000/store';
 
 // THESE ARE ALL THE REQUESTS WE`LL BE MAKING, ALL REQUESTS HAVE A
 // REQUEST METHOD (like get) AND PATH (like /top5list). SOME ALSO
@@ -23,21 +20,21 @@ const api = axios.create({
 // WE NEED TO PUT THINGS INTO THE DATABASE OR IF WE HAVE SOME
 // CUSTOM FILTERS FOR QUERIES
 export const createPlaylist = (newListName, newSongs, userEmail) => {
-    return api.post(`/playlist/`, {
+    return http.post(`/playlist/`, {
         // SPECIFY THE PAYLOAD
         name: newListName,
         songs: newSongs,
         ownerEmail: userEmail
-    })
+    }, { base });
 }
-export const deletePlaylistById = (id) => api.delete(`/playlist/${id}`)
-export const getPlaylistById = (id) => api.get(`/playlist/${id}`)
-export const getPlaylistPairs = () => api.get(`/playlistpairs/`)
+export const deletePlaylistById = (id) => http.delete(`/playlist/${id}`, { base });
+export const getPlaylistById = (id) => http.get(`/playlist/${id}`, { base });
+export const getPlaylistPairs = () => http.get(`/playlistpairs/`, { base });
 export const updatePlaylistById = (id, playlist) => {
-    return api.put(`/playlist/${id}`, {
+    return http.put(`/playlist/${id}`, 
         // SPECIFY THE PAYLOAD
-        playlist : playlist
-    })
+        { playlist }, { base }
+    );
 }
 
 const apis = {

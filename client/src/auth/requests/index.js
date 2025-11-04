@@ -10,11 +10,8 @@
     @author McKilla Gorilla
 */
 
-import axios from 'axios'
-axios.defaults.withCredentials = true;
-const api = axios.create({
-    baseURL: 'http://localhost:4000/auth',
-})
+import { http } from '../../requests';
+const base = 'http://localhost:4000/auth';
 
 // THESE ARE ALL THE REQUESTS WE`LL BE MAKING, ALL REQUESTS HAVE A
 // REQUEST METHOD (like get) AND PATH (like /register). SOME ALSO
@@ -23,22 +20,19 @@ const api = axios.create({
 // WE NEED TO PUT THINGS INTO THE DATABASE OR IF WE HAVE SOME
 // CUSTOM FILTERS FOR QUERIES
 
-export const getLoggedIn = () => api.get(`/loggedIn/`);
+export const getLoggedIn = () => http.get('/loggedIn/', { base });
 export const loginUser = (email, password) => {
-    return api.post(`/login/`, {
-        email : email,
-        password : password
-    })
+    return http.post(`/login/`, { email, password }, { base })
 }
-export const logoutUser = () => api.get(`/logout/`)
+export const logoutUser = () => http.get('/logout/', { base });
 export const registerUser = (firstName, lastName, email, password, passwordVerify) => {
-    return api.post(`/register/`, {
-        firstName : firstName,
-        lastName : lastName,
-        email : email,
-        password : password,
-        passwordVerify : passwordVerify
-    })
+    return http.post(`/register/`, {
+        firstName,
+        lastName,
+        email,
+        password,
+        passwordVerify
+    }, { base });
 }
 const apis = {
     getLoggedIn,
