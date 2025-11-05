@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser')
 // CREATE OUR SERVER
 dotenv.config()
 const PORT = process.env.PORT || 4000;
+const DB_VENDOR = process.env.DB_VENDOR || 'mongo'; // 'mongo' or 'postgres'
 const app = express()
 
 // SETUP THE MIDDLEWARE
@@ -24,9 +25,23 @@ app.use('/auth', authRouter)
 const storeRouter = require('./routes/store-router')
 app.use('/store', storeRouter)
 
-// INITIALIZE OUR DATABASE OBJECT
-const db = require('./db')
-db.on('error', console.error.bind(console, 'Database connection error:'))
+// pick the db implementation
+async function initDb() {
+    let DBImpl;
+    if (DB_VENDOR === 'postgres') {
+        DBImpl = require('./db/postgresql');
+    } else {
+        DBImpl = require('./db/mongodb');
+    }
+    const db = new DBImpl();
+    await db.init();
+    app.locals.db = db;
+    console.log(`DB initialized with vendor=${DB_VENDOR}`);
+}
+initDb().catch(err => {
+    console.error('DB init failed:', err);
+    process.exit(1);
+});
 
 // PUT THE SERVER IN LISTENING MODE
 app.listen(PORT, () => console.log(`Playlister Server running on port ${PORT}`))

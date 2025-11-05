@@ -3,7 +3,7 @@ const { Sequelize, DataTypes } = require('sequelize');
 
 class PostgresDatabaseManager extends DatabaseManager {
     async init() {
-        const uri = process.env.DB_CONNECT; // postgres URI when using Postgres
+        const uri = process.env.PG_URI; // postgres URI when using Postgres
         this.sequelize = new Sequelize(uri, { dialect: 'postgres', logging: false });
 
         // define models
