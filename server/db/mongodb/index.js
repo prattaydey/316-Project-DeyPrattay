@@ -21,6 +21,10 @@ class MongoDatabaseManager extends DatabaseManager {
         return { id: doc._id.toString(), firstName: doc.firstName, lastName: doc.lastName, email: doc.email, passwordHash: doc.passwordHash };
     }
 
+    async findUserById(id) {
+        return User.findById(id).lean();
+    }
+
     // playlists
     async createPlaylist({ name, ownerEmail, songs }) {
         const doc = await Playlist.create({ name, ownerEmail, songs });

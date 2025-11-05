@@ -14,11 +14,16 @@ function authManager() {
                     errorMessage: "Unauthorized"
                 })
             }
-
-            const verified = jwt.verify(token, process.env.JWT_SECRET)
-            console.log("verified.userId: " + verified.userId);
-            req.userId = verified.userId;
-
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            console.log("Decoded token:", decoded);
+            if (!decoded.userId) {
+                return res.status(401).json({
+                    loggedIn: false,
+                    user: null,
+                    errorMessage: "Invalid token payload"
+                });
+            }
+            req.userId = decoded.userId;
             next();
         } catch (err) {
             console.error(err);
@@ -37,17 +42,19 @@ function authManager() {
                 return null;
             }
 
-            const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-            return decodedToken.userId;
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            return decoded.userId || null;
         } catch (err) {
             return null;
         }
     }
 
     signToken = (userId) => {
-        return jwt.sign({
-            userId: userId
-        }, process.env.JWT_SECRET);
+        if (!userId) throw new Error("signToken called without userId");
+        return jwt.sign(
+            { userId },
+            process.env.JWT_SECRET,
+        );
     }
 
     return this;

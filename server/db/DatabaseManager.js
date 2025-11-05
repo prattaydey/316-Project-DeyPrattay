@@ -5,6 +5,7 @@ class DatabaseManager {
   /* users */
   async createUser({ firstName, lastName, email, passwordHash }) { throw new Error('createUser() not implemented'); }
   async findUserByEmail(email) { throw new Error('findUserByEmail() not implemented'); }
+  async findUserById(id) { throw new Error('findUserById() not implemented'); } 
 
   /* playlists */
   async createPlaylist({ name, ownerEmail, songs }) { throw new Error('createPlaylist() not implemented'); }

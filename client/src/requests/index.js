@@ -22,10 +22,12 @@ async function request(path, {
             signal
         });
     } catch (error) {
-        // Network error
-        const err = new Error(error.message || 'Network error');
-        err.response = { status: 0, ok: false, data: { errorMessage: err.message } };
-        throw err;
+        throw {
+            response: {
+                status: 0,
+                data: { errorMessage: error.message || 'Network error' }
+            }
+        };
     }
 
     const text = await res.text();
@@ -33,13 +35,12 @@ async function request(path, {
     try { data = text ? JSON.parse(text) : null; } catch { data = text; }
 
     if (!res.ok) {
-        const err = new Error((data && data.message) || res.statusText || 'Request failed');
-        err.response = {
-            status: res.status,
-            ok: false,
-            data, // whatever the server sent
+        throw {
+            response: {
+                status: res.status,
+                data: data || { errorMessage: res.statusText || 'Request failed' }
+            }
         };
-        throw err;
     }
     return {
         data,

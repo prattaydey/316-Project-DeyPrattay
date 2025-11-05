@@ -43,6 +43,11 @@ class PostgresDatabaseManager extends DatabaseManager {
         return { id: u.id, firstName: u.firstName, lastName: u.lastName, email: u.email, passwordHash: u.passwordHash };
     }
 
+    async findUserById(id) {
+        return this.User.findByPk(id);
+    }
+
+
     // playlists
     async createPlaylist({ name, ownerEmail, songs }) {
         const p = await this.Playlist.create({ name, ownerEmail });
@@ -80,11 +85,15 @@ class PostgresDatabaseManager extends DatabaseManager {
     }
 
     #toPlaylist(row) {
+        const rawSongs = Array.isArray(row?.Songs) ? row.Songs
+                       : Array.isArray(row?.songs) ? row.songs
+                       : [];
         return {
             id: row.id,
+            _id: String(row.id),
             name: row.name,
             ownerEmail: row.ownerEmail,
-            songs: (row.Songs || []).map(s => ({
+            songs: rawSongs.map(s => ({
                 title: s.title, artist: s.artist, year: s.year, youTubeId: s.youTubeId
             }))
         };
