@@ -5,7 +5,7 @@ const Playlist = require('../../models/playlist-model');
 
 class MongoDatabaseManager extends DatabaseManager {
     async init() {
-        const uri = process.env.DB_CONNECT; // mongodb URI when using Mongo
+        const uri = process.env.DB_CONNECT;
         await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     }
     async dispose() { await mongoose.connection.close(); }
