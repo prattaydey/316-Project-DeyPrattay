@@ -39,7 +39,8 @@ createPlaylist = async (req, res) => {
 }
 
 deletePlaylist = async (req, res) => {
-    if(auth.verifyUser(req) === null){
+    const userId = auth.verifyUser(req);
+    if(!userId){
         return res.status(400).json({
             errorMessage: 'UNAUTHORIZED'
         })
@@ -49,7 +50,7 @@ deletePlaylist = async (req, res) => {
     const db = req.app.locals.db;
     const playlist = await db.getPlaylistById(req.params.id);
     if (!playlist) return res.status(404).json({ errorMessage: 'Playlist not found!' });
-    const me = await db.findUserById(req.userId);
+    const me = await db.findUserById(userId);
     if (!me || me.email !== playlist.ownerEmail) {
         return res.status(400).json({ errorMessage: 'authentication error' });
     }
@@ -58,7 +59,8 @@ deletePlaylist = async (req, res) => {
 }
 
 getPlaylistById = async (req, res) => {
-    if(auth.verifyUser(req) === null){
+    const userId = auth.verifyUser(req);
+    if(!userId){
         return res.status(400).json({
             errorMessage: 'UNAUTHORIZED'
         })
@@ -67,7 +69,7 @@ getPlaylistById = async (req, res) => {
     const db = req.app.locals.db;
     const list = await db.getPlaylistById(req.params.id);
     if (!list) return res.status(400).json({ success: false, error: 'Playlist not found' });
-    const me = await db.findUserById(req.userId);
+    const me = await db.findUserById(userId);
     if (!me || me.email !== list.ownerEmail) {
         return res.status(400).json({ success: false, description: 'authentication error' });
     }
@@ -75,26 +77,28 @@ getPlaylistById = async (req, res) => {
 }
 
 getPlaylistPairs = async (req, res) => {
-    if(auth.verifyUser(req) === null){
+    const userId = auth.verifyUser(req);
+    if(!userId){
         return res.status(400).json({
             errorMessage: 'UNAUTHORIZED'
         })
     }
     console.log("getPlaylistPairs");
     const db = req.app.locals.db;
-    const me = await db.findUserById(req.userId);
+    const me = await db.findUserById(userId);
     const pairs = (await db.getPlaylistPairs()).filter(p => p.ownerEmail === me.email)
                     .map(p => ({ _id: p.id, name: p.name }));
     return res.status(200).json({ success: true, idNamePairs: pairs });
 }
 
 getPlaylists = async (req, res) => {
-    if (auth.verifyUser(req) === null) {
+    const userId = auth.verifyUser(req);
+    if (!userId) {
         return res.status(400).json({ errorMessage: 'UNAUTHORIZED' });
     }
     try {
         const db = req.app.locals.db;
-        const me = await db.findUserById(req.userId);
+        const me = await db.findUserById(userId);
 
         const pairs = await db.getPlaylistPairs();
         const mine = pairs.filter(p => p.ownerEmail === me.email);
@@ -111,7 +115,8 @@ getPlaylists = async (req, res) => {
 }
 
 updatePlaylist = async (req, res) => {
-    if(auth.verifyUser(req) === null){
+    const userId = auth.verifyUser(req);
+    if(!userId){
         return res.status(400).json({
             errorMessage: 'UNAUTHORIZED'
         })
@@ -141,7 +146,7 @@ updatePlaylist = async (req, res) => {
     const current = await db.getPlaylistById(playlistId);
     if (!current) return res.status(404).json({ message: 'Playlist not found!' });
 
-    const me = await db.findUserById(req.userId);
+    const me = await db.findUserById(userId);
     if (!me || me.email !== current.ownerEmail) {
         return res.status(400).json({ success: false, description: 'authentication error' });
     }

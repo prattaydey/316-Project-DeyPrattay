@@ -7,7 +7,8 @@ const auth = require('../auth')
 
 // CREATE a new song in the global catalog
 createSong = async (req, res) => {
-    if (auth.verifyUser(req) === null) {
+    const userId = auth.verifyUser(req);
+    if (!userId) {
         return res.status(400).json({
             errorMessage: 'UNAUTHORIZED'
         })
@@ -33,7 +34,7 @@ createSong = async (req, res) => {
 
     try {
         const db = req.app.locals.db;
-        const user = await db.findUserById(req.userId);
+        const user = await db.findUserById(userId);
         
         if (!user) {
             return res.status(400).json({
@@ -149,7 +150,8 @@ getSongById = async (req, res) => {
 
 // UPDATE a song (only by the user who added it)
 updateSong = async (req, res) => {
-    if (auth.verifyUser(req) === null) {
+    const userId = auth.verifyUser(req);
+    if (!userId) {
         return res.status(400).json({
             errorMessage: 'UNAUTHORIZED'
         })
@@ -184,7 +186,7 @@ updateSong = async (req, res) => {
             });
         }
 
-        const user = await db.findUserById(req.userId);
+        const user = await db.findUserById(userId);
         if (!user || user.email !== currentSong.addedBy) {
             return res.status(403).json({ 
                 success: false, 
@@ -224,7 +226,8 @@ updateSong = async (req, res) => {
 
 // DELETE a song from catalog (only by the user who added it)
 deleteSong = async (req, res) => {
-    if (auth.verifyUser(req) === null) {
+    const userId = auth.verifyUser(req);
+    if (!userId) {
         return res.status(400).json({
             errorMessage: 'UNAUTHORIZED'
         })
@@ -243,7 +246,7 @@ deleteSong = async (req, res) => {
             });
         }
         
-        const user = await db.findUserById(req.userId);
+        const user = await db.findUserById(userId);
         if (!user || user.email !== song.addedBy) {
             return res.status(403).json({ 
                 success: false, 
@@ -272,4 +275,3 @@ module.exports = {
     updateSong,
     deleteSong
 }
-
