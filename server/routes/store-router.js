@@ -9,11 +9,20 @@ const StoreController = require('../controllers/store-controller')
 const router = express.Router()
 const auth = require('../auth')
 
+// Playlist CRUD (all require auth)
 router.post('/playlist', auth.verify, StoreController.createPlaylist)
 router.delete('/playlist/:id', auth.verify, StoreController.deletePlaylist)
-router.get('/playlist/:id', auth.verify, StoreController.getPlaylistById)
-router.get('/playlistpairs', auth.verify, StoreController.getPlaylistPairs)
-router.get('/playlists', auth.verify, StoreController.getPlaylists)
 router.put('/playlist/:id', auth.verify, StoreController.updatePlaylist)
+
+// Playlist queries (flexible - guests allowed)
+router.get('/playlist/:id', StoreController.getPlaylistById)
+router.get('/playlistpairs', auth.verify, StoreController.getPlaylistPairs)
+router.get('/playlists', StoreController.getPlaylists)
+
+// Social features (most require auth, play allows guests)
+router.put('/playlist/:id/publish', auth.verify, StoreController.publishPlaylist)
+router.post('/playlist/:id/comment', auth.verify, StoreController.commentOnPlaylist)
+router.post('/playlist/:id/play', StoreController.playPlaylist)
+router.post('/playlist/:id/copy', auth.verify, StoreController.copyPlaylist)
 
 module.exports = router

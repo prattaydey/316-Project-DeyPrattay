@@ -20,8 +20,6 @@ const playlistSchema = new Schema(
         published: { type: Boolean, default: false },
         listens: { type: Number, default: 0 },
         listeners: [{ type: String }], // Array of user IDs who have listened
-        likes: { type: Number, default: 0 },
-        dislikes: { type: Number, default: 0 },
         comments: [{
             userName: String,
             text: String,

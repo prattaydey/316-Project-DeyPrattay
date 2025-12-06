@@ -81,8 +81,6 @@ class MongoDatabaseManager extends DatabaseManager {
             published: published || false,
             listens: 0,
             listeners: [],
-            likes: 0,
-            dislikes: 0,
             comments: [],
             createdDate: new Date(),
             lastEditedDate: new Date()
@@ -199,8 +197,6 @@ class MongoDatabaseManager extends DatabaseManager {
             published: doc.published,
             listens: doc.listens,
             listeners: doc.listeners || [],
-            likes: doc.likes,
-            dislikes: doc.dislikes,
             comments: doc.comments || [],
             createdDate: doc.createdDate,
             lastEditedDate: doc.lastEditedDate
