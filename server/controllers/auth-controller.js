@@ -24,6 +24,9 @@ getLoggedIn = async (req, res) => {
                 userName: loggedInUser.userName,
                 email: loggedInUser.email,
                 avatarImage: loggedInUser.avatarImage
+                userName: loggedInUser.userName,
+                email: loggedInUser.email,
+                avatarImage: loggedInUser.avatarImage
             }
         })
     } catch (err) {
@@ -82,6 +85,10 @@ loginUser = async (req, res) => {
                 userName: existingUser.userName,
                 email: existingUser.email,
                 avatarImage: existingUser.avatarImage
+                lastName: existingUser.lastName,
+                userName: existingUser.userName,
+                email: existingUser.email,
+                avatarImage: existingUser.avatarImage
             }
         })
 
@@ -108,11 +115,17 @@ registerUser = async (req, res) => {
         
         // Validate required fields 
         if (!userName || !email || !password || !passwordVerify) {
+        const { firstName, lastName, userName, email, password, passwordVerify, avatarImage } = req.body;
+        console.log("create user: " + userName + " " + email);
+        
+        // Validate required fields 
+        if (!userName || !email || !password || !passwordVerify) {
             return res
                 .status(400)
                 .json({ errorMessage: "Please enter all required fields." });
         }
         console.log("all fields provided");
+        
         
         if (password.length < 8) {
             return res
@@ -123,6 +136,7 @@ registerUser = async (req, res) => {
         }
         console.log("password long enough");
         
+        
         if (password !== passwordVerify) {
             return res
                 .status(400)
@@ -131,6 +145,15 @@ registerUser = async (req, res) => {
                 })
         }
         console.log("password and password verify match");
+        
+        // Validate avatar image if provided
+        const avatarValidation = validateAvatarImage(avatarImage);
+        if (avatarValidation !== true) {
+            return res
+                .status(400)
+                .json({ errorMessage: avatarValidation });
+        }
+        
         
         // Validate avatar image if provided
         const avatarValidation = validateAvatarImage(avatarImage);
@@ -165,6 +188,14 @@ registerUser = async (req, res) => {
             passwordHash,
             avatarImage: avatarImage || null
         });
+        const savedUser = await db.createUser({ 
+            firstName: firstName || '', 
+            lastName: lastName || '', 
+            userName, 
+            email, 
+            passwordHash,
+            avatarImage: avatarImage || null
+        });
         console.log("new user saved: " + savedUser._id);
 
         // LOGIN THE USER
@@ -181,6 +212,10 @@ registerUser = async (req, res) => {
             success: true,
             user: {
                 firstName: savedUser.firstName,
+                lastName: savedUser.lastName,
+                userName: savedUser.userName,
+                email: savedUser.email,
+                avatarImage: savedUser.avatarImage
                 lastName: savedUser.lastName,
                 userName: savedUser.userName,
                 email: savedUser.email,
@@ -321,6 +356,8 @@ module.exports = {
     getLoggedIn,
     registerUser,
     loginUser,
+    logoutUser,
+    updateUser
     logoutUser,
     updateUser
 }
