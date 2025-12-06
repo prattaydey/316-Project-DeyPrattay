@@ -118,7 +118,7 @@ updatePlaylist = async (req, res) => {
     }
     const body = req.body
     console.log("updatePlaylist: " + JSON.stringify(body));
-    console.log("req.body.name: " + req.body.name);
+    console.log("body.playlist.name:", body?.playlist?.name);
 
     if (!body) {
         return res.status(400).json({
@@ -128,20 +128,19 @@ updatePlaylist = async (req, res) => {
     }
 
     const db = req.app.locals.db;
-    const playlistId =
-        req.params?.id ??
-        body?.playlist?.id ??
-        body?.playlist?._id ??
-        body?.id ??
-        body?._id;
+    // Prefer route param, but guard against "undefined"
+    let playlistId = req.params?.id;
+    if (!playlistId || playlistId === 'undefined') {
+        playlistId = body?.playlist?.id || body?.playlist?._id;
+    }
     
     if (!playlistId) {
         return res.status(400).json({ message: 'Missing playlist id' });
     }
     
     const current = await db.getPlaylistById(playlistId);
-
     if (!current) return res.status(404).json({ message: 'Playlist not found!' });
+
     const me = await db.findUserById(req.userId);
     if (!me || me.email !== current.ownerEmail) {
         return res.status(400).json({ success: false, description: 'authentication error' });
