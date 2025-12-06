@@ -1,6 +1,26 @@
 const auth = require('../auth')
 const bcrypt = require('bcryptjs')
 
+// Helper function to validate avatar image
+// Returns true if valid, error message if invalid
+const validateAvatarImage = (avatarImage) => {
+    if (!avatarImage) return true; // Optional field
+    
+    // Check if it's a valid base64 string
+    const base64Pattern = /^data:image\/(png|jpg|jpeg|gif|webp);base64,/;
+    if (!base64Pattern.test(avatarImage)) {
+        return "Invalid image format. Please upload a PNG, JPG, GIF, or WebP image.";
+    }
+    
+    const sizeInBytes = (avatarImage.length * 3) / 4;
+    const maxSizeInBytes = 1.5 * 1024 * 1024; // 1.5MB
+    if (sizeInBytes > maxSizeInBytes) {
+        return "Image is too large. Please upload an image smaller than 1MB.";
+    }
+    
+    return true;
+}
+
 getLoggedIn = async (req, res) => {
     try {
         let userId = auth.verifyUser(req);
@@ -21,9 +41,6 @@ getLoggedIn = async (req, res) => {
             user: {
                 firstName: loggedInUser.firstName,
                 lastName: loggedInUser.lastName,
-                userName: loggedInUser.userName,
-                email: loggedInUser.email,
-                avatarImage: loggedInUser.avatarImage
                 userName: loggedInUser.userName,
                 email: loggedInUser.email,
                 avatarImage: loggedInUser.avatarImage
@@ -85,10 +102,6 @@ loginUser = async (req, res) => {
                 userName: existingUser.userName,
                 email: existingUser.email,
                 avatarImage: existingUser.avatarImage
-                lastName: existingUser.lastName,
-                userName: existingUser.userName,
-                email: existingUser.email,
-                avatarImage: existingUser.avatarImage
             }
         })
 
@@ -115,17 +128,11 @@ registerUser = async (req, res) => {
         
         // Validate required fields 
         if (!userName || !email || !password || !passwordVerify) {
-        const { firstName, lastName, userName, email, password, passwordVerify, avatarImage } = req.body;
-        console.log("create user: " + userName + " " + email);
-        
-        // Validate required fields 
-        if (!userName || !email || !password || !passwordVerify) {
             return res
                 .status(400)
                 .json({ errorMessage: "Please enter all required fields." });
         }
         console.log("all fields provided");
-        
         
         if (password.length < 8) {
             return res
@@ -136,7 +143,6 @@ registerUser = async (req, res) => {
         }
         console.log("password long enough");
         
-        
         if (password !== passwordVerify) {
             return res
                 .status(400)
@@ -145,15 +151,6 @@ registerUser = async (req, res) => {
                 })
         }
         console.log("password and password verify match");
-        
-        // Validate avatar image if provided
-        const avatarValidation = validateAvatarImage(avatarImage);
-        if (avatarValidation !== true) {
-            return res
-                .status(400)
-                .json({ errorMessage: avatarValidation });
-        }
-        
         
         // Validate avatar image if provided
         const avatarValidation = validateAvatarImage(avatarImage);
@@ -188,14 +185,6 @@ registerUser = async (req, res) => {
             passwordHash,
             avatarImage: avatarImage || null
         });
-        const savedUser = await db.createUser({ 
-            firstName: firstName || '', 
-            lastName: lastName || '', 
-            userName, 
-            email, 
-            passwordHash,
-            avatarImage: avatarImage || null
-        });
         console.log("new user saved: " + savedUser._id);
 
         // LOGIN THE USER
@@ -216,10 +205,6 @@ registerUser = async (req, res) => {
                 userName: savedUser.userName,
                 email: savedUser.email,
                 avatarImage: savedUser.avatarImage
-                lastName: savedUser.lastName,
-                userName: savedUser.userName,
-                email: savedUser.email,
-                avatarImage: savedUser.avatarImage
             }
         })
 
@@ -229,26 +214,6 @@ registerUser = async (req, res) => {
         console.error(err);
         res.status(500).send();
     }
-}
-
-// Helper function to validate avatar image
-// Returns true if valid, error message if invalid
-const validateAvatarImage = (avatarImage) => {
-    if (!avatarImage) return true; // Optional field
-    
-    // Check if it's a valid base64 string
-    const base64Pattern = /^data:image\/(png|jpg|jpeg|gif|webp);base64,/;
-    if (!base64Pattern.test(avatarImage)) {
-        return "Invalid image format. Please upload a PNG, JPG, GIF, or WebP image.";
-    }
-    
-    const sizeInBytes = (avatarImage.length * 3) / 4;
-    const maxSizeInBytes = 1.5 * 1024 * 1024; // 1.5MB in base64, ~1MB in binary
-    if (sizeInBytes > maxSizeInBytes) {
-        return "Image is too large. Please upload an image smaller than 1MB.";
-    }
-    
-    return true;
 }
 
 updateUser = async (req, res) => {
@@ -356,8 +321,6 @@ module.exports = {
     getLoggedIn,
     registerUser,
     loginUser,
-    logoutUser,
-    updateUser
     logoutUser,
     updateUser
 }

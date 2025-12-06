@@ -24,6 +24,8 @@ const authRouter = require('./routes/auth-router')
 app.use('/auth', authRouter)
 const storeRouter = require('./routes/store-router')
 app.use('/store', storeRouter)
+const songRouter = require('./routes/song-router')
+app.use('/songs', songRouter)
 
 // pick the db implementation
 async function initDb() {
