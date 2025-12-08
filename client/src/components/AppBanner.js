@@ -6,13 +6,13 @@ import { GlobalStoreContext } from '../store'
 import EditToolbar from './EditToolbar'
 
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import HomeIcon from '@mui/icons-material/Home';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 
 export default function AppBanner() {
     const { auth } = useContext(AuthContext);
@@ -90,25 +90,38 @@ export default function AppBanner() {
         let userInitials = auth.getUserInitials();
         console.log("userInitials: " + userInitials);
         if (loggedIn) 
-            return <div>{userInitials}</div>;
+            return <div style={{ color: '#333', fontWeight: 'bold', fontSize: '14px' }}>{userInitials}</div>;
         else
-            return <AccountCircle />;
+            return <AccountCircle sx={{ color: '#333', fontSize: 28 }} />;
     }
 
     return (
         <Box sx={{flexGrow: 1}}>
-            <AppBar position="static">
-                <Toolbar>
-                    <Typography                        
-                        variant="h4"
-                        noWrap
-                        component="div"
-                        sx={{ display: { xs: 'none', sm: 'block' } }}                        
-                    >
-                        <Link onClick={handleHouseClick} style={{ textDecoration: 'none', color: 'white' }} to='/'>⌂</Link>
-                    </Typography>
+            <AppBar position="static" sx={{ 
+                background: '#e040fb',
+                boxShadow: 'none'
+            }}>
+                <Toolbar sx={{ minHeight: '64px' }}>
+                    {/* Home Button with white circle background */}
+                    <Link onClick={handleHouseClick} to='/' style={{ textDecoration: 'none' }}>
+                        <Box sx={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: '50%',
+                            backgroundColor: 'white',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: '2px solid #333'
+                        }}>
+                            <HomeIcon sx={{ color: '#333', fontSize: 24 }} />
+                        </Box>
+                    </Link>
+                    
                     <Box sx={{ flexGrow: 1 }}>{editToolbar}</Box>
-                    <Box sx={{ height: "90px", display: { xs: 'none', md: 'flex' } }}>
+                    
+                    {/* Account Button with white circle background */}
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <IconButton
                             size="large"
                             edge="end"
@@ -116,7 +129,17 @@ export default function AppBanner() {
                             aria-controls={menuId}
                             aria-haspopup="true"
                             onClick={handleProfileMenuOpen}
-                            color="inherit"
+                            sx={{
+                                padding: 0,
+                                width: 40,
+                                height: 40,
+                                borderRadius: '50%',
+                                backgroundColor: 'white',
+                                border: '2px solid #333',
+                                '&:hover': {
+                                    backgroundColor: '#f5f5f5'
+                                }
+                            }}
                         >
                             { getAccountMenu(auth.loggedIn) }
                         </IconButton>
