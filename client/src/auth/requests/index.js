@@ -25,13 +25,13 @@ export const loginUser = (email, password) => {
     return http.post(`/login/`, { email, password }, { base })
 }
 export const logoutUser = () => http.get('/logout/', { base });
-export const registerUser = (firstName, lastName, email, password, passwordVerify) => {
+export const registerUser = (userName, email, password, passwordVerify, avatarImage) => {
     return http.post(`/register/`, {
-        firstName,
-        lastName,
+        userName,
         email,
         password,
-        passwordVerify
+        passwordVerify,
+        avatarImage
     }, { base });
 }
 const apis = {

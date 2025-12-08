@@ -27,8 +27,7 @@ export default function SplashScreen() {
             <div id="splash-content">
                 <div id="splash-title">The Playlister</div>
                 <div id="splash-logo">
-                    <span id="splash-note">♪</span>
-                    <span id="splash-lines">☰</span>
+                    <img src="/images/playlister-logo.png" alt="Playlister Logo" className="splash-logo-img" />
                 </div>
                 <div id="splash-buttons">
                     <button 

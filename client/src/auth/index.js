@@ -74,24 +74,23 @@ function AuthContextProvider(props) {
         }
     }
 
-    auth.registerUser = async function(firstName, lastName, email, password, passwordVerify) {
+    auth.registerUser = async function(userName, email, password, passwordVerify, avatarImage) {
         console.log("REGISTERING USER");
         try{   
-            const response = await authRequestSender.registerUser(firstName, lastName, email, password, passwordVerify);   
+            const response = await authRequestSender.registerUser(userName, email, password, passwordVerify, avatarImage);   
             if (response.status === 200) {
-                console.log("Registered Sucessfully");
+                console.log("Registered Successfully");
+                // Don't log in automatically - just redirect to login page
                 authReducer({
                     type: AuthActionType.REGISTER_USER,
                     payload: {
-                        user: response.data.user,
-                        loggedIn: true,
+                        user: null,
+                        loggedIn: false,
                         errorMessage: null
                     }
                 })
-                history.push("/login");
-                console.log("NOW WE LOGIN");
-                auth.loginUser(email, password);
-                console.log("LOGGED IN");
+                // Redirect to login page for user to log in manually
+                history.push("/login/");
             }
         } catch(error){
             authReducer({
@@ -145,8 +144,14 @@ function AuthContextProvider(props) {
     auth.getUserInitials = function() {
         let initials = "";
         if (auth.user) {
-            initials += auth.user.firstName.charAt(0);
-            initials += auth.user.lastName.charAt(0);
+            // Use userName if available, otherwise fall back to firstName/lastName
+            if (auth.user.userName) {
+                // Take first two characters of userName
+                initials = auth.user.userName.substring(0, 2).toUpperCase();
+            } else if (auth.user.firstName && auth.user.lastName) {
+                initials += auth.user.firstName.charAt(0);
+                initials += auth.user.lastName.charAt(0);
+            }
         }
         console.log("user initials: " + initials);
         return initials;

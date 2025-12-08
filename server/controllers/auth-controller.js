@@ -187,28 +187,13 @@ registerUser = async (req, res) => {
         });
         console.log("new user saved: " + savedUser._id);
 
-        // LOGIN THE USER
-        const savedId = String(savedUser._id ?? savedUser.id);
-        console.log("new user saved: " + savedId);
-        const token = auth.signToken(savedId);
-        console.log("token:" + token);
-
-        await res.cookie("token", token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none"
-        }).status(200).json({
+        // Don't auto-login - user will be redirected to login page
+        return res.status(200).json({
             success: true,
-            user: {
-                firstName: savedUser.firstName,
-                lastName: savedUser.lastName,
-                userName: savedUser.userName,
-                email: savedUser.email,
-                avatarImage: savedUser.avatarImage
-            }
-        })
+            message: "Account created successfully. Please log in."
+        });
 
-        console.log("token sent");
+        console.log("registration complete");
 
     } catch (err) {
         console.error(err);

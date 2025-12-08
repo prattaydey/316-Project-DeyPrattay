@@ -1,133 +1,244 @@
-import { useContext } from 'react';
+import { useContext, useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import AuthContext from '../auth'
 import MUIErrorModal from './MUIErrorModal'
-import Copyright from './Copyright'
-
-import Avatar from '@mui/material/Avatar';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
-import CssBaseline from '@mui/material/CssBaseline';
-import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
+import ClearIcon from '@mui/icons-material/Clear';
+
+// Avatar image requirements
+const AVATAR_REQUIRED_SIZE = 250;  // Must be exactly 250x250 pixels
+const AVATAR_MAX_FILE_SIZE = 1024 * 1024; // 1MB max file size
 
 export default function RegisterScreen() {
     const { auth } = useContext(AuthContext);
+    const [avatarPreview, setAvatarPreview] = useState(null);
+    const [avatarBase64, setAvatarBase64] = useState(null);
+    const [avatarError, setAvatarError] = useState(null);
+    const fileInputRef = useRef(null);
+    
+    // Form field states
+    const [userName, setUserName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [passwordVerify, setPasswordVerify] = useState('');
+    
+    // Validation state
+    const [isFormValid, setIsFormValid] = useState(false);
+
+    // Check if form is valid whenever fields change
+    useEffect(() => {
+        const isValid = 
+            userName.trim().length > 0 &&
+            email.trim().length > 0 &&
+            email.includes('@') &&
+            password.length >= 8 &&
+            passwordVerify.length > 0 &&
+            password === passwordVerify;
+        setIsFormValid(isValid);
+    }, [userName, email, password, passwordVerify]);
+
+    const handleAvatarSelect = (event) => {
+        const file = event.target.files[0];
+        setAvatarError(null);
+        
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                setAvatarError('Please select an image file (PNG, JPG, GIF)');
+                return;
+            }
+            
+            if (file.size > AVATAR_MAX_FILE_SIZE) {
+                setAvatarError(`Image file must be less than 1MB (yours: ${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+                return;
+            }
+            
+            // Create image to check dimensions
+            const img = new Image();
+            const reader = new FileReader();
+            
+            reader.onloadend = () => {
+                img.onload = () => {
+                    // Validate image dimensions - must be exactly 250x250
+                    if (img.width !== AVATAR_REQUIRED_SIZE || img.height !== AVATAR_REQUIRED_SIZE) {
+                        setAvatarError(`Image must be exactly ${AVATAR_REQUIRED_SIZE}x${AVATAR_REQUIRED_SIZE}px (yours: ${img.width}x${img.height}px)`);
+                        setAvatarPreview(null);
+                        setAvatarBase64(null);
+                        return;
+                    }
+                    
+                    // Image is valid
+                    setAvatarError(null);
+                    setAvatarPreview(reader.result);
+                    setAvatarBase64(reader.result);
+                };
+                img.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        const formData = new FormData(event.currentTarget);
+        if (!isFormValid) return;
+        
         auth.registerUser(
-            formData.get('firstName'),
-            formData.get('lastName'),
-            formData.get('email'),
-            formData.get('password'),
-            formData.get('passwordVerify')
+            userName,
+            email,
+            password,
+            passwordVerify,
+            avatarBase64
         );
     };
 
+    const clearField = (fieldId, setter) => {
+        setter('');
+    };
+
     let modalJSX = ""
-    console.log(auth);
     if (auth.errorMessage !== null){
         modalJSX = <MUIErrorModal />;
     }
-    console.log(modalJSX);
 
     return (
-            <Container component="main" maxWidth="xs">
-                <CssBaseline />
-                <Box
-                    sx={{
-                        marginTop: 8,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                        <LockOutlinedIcon />
-                    </Avatar>
-                    <Typography component="h1" variant="h5">
-                        Sign up
-                    </Typography>
-                    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    autoComplete="fname"
-                                    name="firstName"
+        <div id="register-screen">
+            <div id="register-content">
+                {/* Lock Icon */}
+                <div className="register-icon">
+                    <LockOutlinedIcon sx={{ fontSize: 48, color: '#333' }} />
+                </div>
+                
+                {/* Title */}
+                <h1 className="register-title">Create Account</h1>
+                
+                {/* Form with Avatar */}
+                <form onSubmit={handleSubmit} className="register-form">
+                    <div className="register-form-container">
+                        {/* Avatar Selector */}
+                        <div className="avatar-selector">
+                            <div className={`avatar-preview ${avatarError ? 'avatar-error-border' : ''}`}>
+                                {avatarPreview ? (
+                                    <img src={avatarPreview} alt="Avatar preview" />
+                                ) : (
+                                    <img src="/images/default-avatar.png" alt="Default avatar" className="avatar-placeholder-img" />
+                                )}
+                            </div>
+                            <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/gif,image/webp"
+                                onChange={handleAvatarSelect}
+                                ref={fileInputRef}
+                                style={{ display: 'none' }}
+                            />
+                            <button 
+                                type="button" 
+                                className="avatar-select-btn"
+                                onClick={() => fileInputRef.current.click()}
+                            >
+                                Select
+                            </button>
+                            <div className="avatar-requirements">
+                                {AVATAR_REQUIRED_SIZE}x{AVATAR_REQUIRED_SIZE}px
+                            </div>
+                            {avatarError && (
+                                <div className="avatar-error-message">
+                                    {avatarError}
+                                </div>
+                            )}
+                        </div>
+                        
+                        {/* Form Fields */}
+                        <div className="register-fields">
+                            <div className="input-group">
+                                <input
+                                    type="text"
+                                    id="userName"
+                                    name="userName"
+                                    placeholder="User Name"
+                                    value={userName}
+                                    onChange={(e) => setUserName(e.target.value)}
                                     required
-                                    fullWidth
-                                    id="firstName"
-                                    label="First Name"
                                     autoFocus
                                 />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    id="lastName"
-                                    label="Last Name"
-                                    name="lastName"
-                                    autoComplete="lname"
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    required
-                                    fullWidth
+                                <button type="button" className="clear-btn" onClick={() => clearField('userName', setUserName)}>
+                                    <ClearIcon sx={{ fontSize: 18 }} />
+                                </button>
+                            </div>
+                            
+                            <div className="input-group">
+                                <input
+                                    type="email"
                                     id="email"
-                                    label="Email Address"
                                     name="email"
-                                    autoComplete="email"
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    fullWidth
-                                    name="password"
-                                    label="Password"
+                                />
+                                <button type="button" className="clear-btn" onClick={() => clearField('email', setEmail)}>
+                                    <ClearIcon sx={{ fontSize: 18 }} />
+                                </button>
+                            </div>
+                            
+                            <div className="input-group">
+                                <input
                                     type="password"
                                     id="password"
-                                    autoComplete="new-password"
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
+                                    name="password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    fullWidth
-                                    name="passwordVerify"
-                                    label="Password Verify"
+                                />
+                                <button type="button" className="clear-btn" onClick={() => clearField('password', setPassword)}>
+                                    <ClearIcon sx={{ fontSize: 18 }} />
+                                </button>
+                            </div>
+                            
+                            <div className="input-group">
+                                <input
                                     type="password"
                                     id="passwordVerify"
-                                    autoComplete="new-password"
+                                    name="passwordVerify"
+                                    placeholder="Password Confirm"
+                                    value={passwordVerify}
+                                    onChange={(e) => setPasswordVerify(e.target.value)}
+                                    required
                                 />
-                            </Grid>
-                        </Grid>
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 3, mb: 2 }}
-                        >
-                            Sign Up
-                        </Button>
-                        <Grid container justifyContent="flex-end">
-                            <Grid item>
-                                <Link href="/login/" variant="body2">
-                                    Already have an account? Sign in
-                                </Link>
-                            </Grid>
-                        </Grid>
-                    </Box>
-                </Box>
-                <Copyright sx={{ mt: 5 }} />
+                                <button type="button" className="clear-btn" onClick={() => clearField('passwordVerify', setPasswordVerify)}>
+                                    <ClearIcon sx={{ fontSize: 18 }} />
+                                </button>
+                            </div>
+                            
+                            {/* Validation hints */}
+                            {password.length > 0 && password.length < 8 && (
+                                <div className="validation-hint">Password must be at least 8 characters</div>
+                            )}
+                            {passwordVerify.length > 0 && password !== passwordVerify && (
+                                <div className="validation-hint">Passwords do not match</div>
+                            )}
+                            
+                            <button 
+                                type="submit" 
+                                className={`register-submit-btn ${!isFormValid ? 'register-submit-btn-disabled' : ''}`}
+                                disabled={!isFormValid}
+                            >
+                                Create Account
+                            </button>
+                            
+                            <Link to="/login/" className="register-signin-link">
+                                Already have an account? Sign In
+                            </Link>
+                        </div>
+                    </div>
+                </form>
+                
+                {/* Copyright */}
+                <div className="register-copyright">
+                    Copyright © Playlister 2025
+                </div>
+                
                 { modalJSX }
-            </Container>
+            </div>
+        </div>
     );
 }
