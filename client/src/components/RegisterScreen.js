@@ -21,8 +21,6 @@ export default function RegisterScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVerify, setPasswordVerify] = useState('');
-    
-    // Validation state
     const [isFormValid, setIsFormValid] = useState(false);
 
     // Check if form is valid whenever fields change
@@ -58,7 +56,6 @@ export default function RegisterScreen() {
             
             reader.onloadend = () => {
                 img.onload = () => {
-                    // Validate image dimensions - must be exactly 250x250
                     if (img.width !== AVATAR_REQUIRED_SIZE || img.height !== AVATAR_REQUIRED_SIZE) {
                         setAvatarError(`Image must be exactly ${AVATAR_REQUIRED_SIZE}x${AVATAR_REQUIRED_SIZE}px (yours: ${img.width}x${img.height}px)`);
                         setAvatarPreview(null);
