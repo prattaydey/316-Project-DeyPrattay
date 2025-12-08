@@ -19,7 +19,7 @@ const playlistSchema = new Schema(
         }], required: true },
         published: { type: Boolean, default: false },
         listens: { type: Number, default: 0 },
-        listeners: [{ type: String }], // Array of user IDs who have listened
+        uniqueListeners: [{ type: String }], // Array of user IDs who have listened
         comments: [{
             userName: String,
             text: String,

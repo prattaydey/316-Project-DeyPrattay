@@ -153,7 +153,7 @@ getPlaylists = async (req, res) => {
                 
                 switch (sortBy) {
                     case 'listeners':
-                        comparison = (b.listeners?.length || 0) - (a.listeners?.length || 0);
+                        comparison = (b.uniqueListeners?.length || 0) - (a.uniqueListeners?.length || 0);
                         break;
                     case 'name':
                         comparison = a.name.localeCompare(b.name);
@@ -298,16 +298,16 @@ playPlaylist = async (req, res) => {
         
         // Increment listens
         const newListens = (playlist.listens || 0) + 1;
-        let newListeners = playlist.listeners || [];
+        let newUniqueListeners = playlist.uniqueListeners || [];
         
         // Add to unique listeners if user is logged in and not already in the list
-        if (userId && !newListeners.includes(userId)) {
-            newListeners = [...newListeners, userId];
+        if (userId && !newUniqueListeners.includes(userId)) {
+            newUniqueListeners = [...newUniqueListeners, userId];
         }
         
         const updated = await db.updatePlaylistById(playlistId, { 
             listens: newListens,
-            listeners: newListeners
+            uniqueListeners: newUniqueListeners
         });
         
         return res.status(200).json({ success: true, playlist: updated });

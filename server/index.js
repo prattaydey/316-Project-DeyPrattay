@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser')
 // CREATE OUR SERVER
 dotenv.config()
 const PORT = process.env.PORT || 4000;
-const DB_VENDOR = process.env.DB_VENDOR || 'mongodb'; // 'mongo' or 'postgres'
+const DB_VENDOR = process.env.DB_VENDOR || 'mongodb'; // 'mongodb' or 'postgres'
 const app = express()
 
 // SETUP THE MIDDLEWARE

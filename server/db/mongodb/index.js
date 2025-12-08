@@ -80,7 +80,7 @@ class MongoDatabaseManager extends DatabaseManager {
             songs: songs || [],
             published: published || false,
             listens: 0,
-            listeners: [],
+            uniqueListeners: [],
             comments: [],
             createdDate: new Date(),
             lastEditedDate: new Date()
@@ -196,7 +196,7 @@ class MongoDatabaseManager extends DatabaseManager {
             })) || [],
             published: doc.published,
             listens: doc.listens,
-            listeners: doc.listeners || [],
+            uniqueListeners: doc.uniqueListeners || [],
             comments: doc.comments || [],
             createdDate: doc.createdDate,
             lastEditedDate: doc.lastEditedDate
