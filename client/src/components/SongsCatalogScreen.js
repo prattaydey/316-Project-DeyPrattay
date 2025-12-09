@@ -42,13 +42,35 @@ export default function SongsCatalogScreen() {
         loadSongs();
     }, [sortBy, sortOrder]);
 
-    const loadSongs = async () => {
+    const loadSongs = async (isSearch = false) => {
         setLoading(true);
+        
+        // Check if any search filter is applied
+        const hasSearchFilter = searchTitle || searchArtist || searchYear;
+        
+        // If guest with no search filters, show empty list (no owned songs)
+        if (!auth.loggedIn && !hasSearchFilter && !isSearch) {
+            setSongs([]);
+            setSelectedSong(null);
+            setLoading(false);
+            return;
+        }
+        
         try {
             const params = new URLSearchParams();
-            if (searchTitle) params.append('title', searchTitle);
-            if (searchArtist) params.append('artist', searchArtist);
-            if (searchYear) params.append('year', searchYear);
+            
+            // If searching, search the full catalog
+            // If not searching and logged in, show only user's own songs
+            if (hasSearchFilter || isSearch) {
+                // Search mode - search full catalog
+                if (searchTitle) params.append('title', searchTitle);
+                if (searchArtist) params.append('artist', searchArtist);
+                if (searchYear) params.append('year', searchYear);
+            } else if (auth.loggedIn && auth.user) {
+                // No search, logged in - show only own songs
+                params.append('addedBy', auth.user.email);
+            }
+            
             params.append('sortBy', sortBy);
             params.append('sortOrder', sortOrder);
             
@@ -70,14 +92,14 @@ export default function SongsCatalogScreen() {
     };
 
     const handleSearch = () => {
-        loadSongs();
+        loadSongs(true); // true = is a search, search full catalog
     };
 
     const handleClearSearch = () => {
         setSearchTitle('');
         setSearchArtist('');
         setSearchYear('');
-        loadSongs();
+        setTimeout(() => loadSongs(false), 0);
     };
 
     const handleSortChange = (event) => {
@@ -283,7 +305,13 @@ export default function SongsCatalogScreen() {
                         {loading ? (
                             <div className="loading">Loading songs...</div>
                         ) : songs.length === 0 ? (
-                            <div className="no-songs">No songs found</div>
+                            <div className="no-songs">
+                                {!auth.loggedIn && !searchTitle && !searchArtist && !searchYear
+                                    ? "Use the search to browse the song catalog"
+                                    : auth.loggedIn && !searchTitle && !searchArtist && !searchYear
+                                    ? "You haven't added any songs yet. Click 'New Song' to add one!"
+                                    : "No songs found matching your search"}
+                            </div>
                         ) : (
                             songs.map((song) => (
                                 <SongCatalogCard
