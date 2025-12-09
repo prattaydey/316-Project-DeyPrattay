@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import ClearIcon from '@mui/icons-material/Clear';
 import EditIcon from '@mui/icons-material/Edit';
@@ -8,6 +8,7 @@ import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import AddIcon from '@mui/icons-material/Add';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 
@@ -24,6 +25,11 @@ export default function EditPlaylistModal({ playlist, onClose, onSave }) {
     const [editingSongIndex, setEditingSongIndex] = useState(null);
     const [editSongData, setEditSongData] = useState({ title: '', artist: '', year: '', youTubeId: '' });
 
+    // For drag and drop state
+    const [draggedIndex, setDraggedIndex] = useState(null);
+    const [dragOverIndex, setDragOverIndex] = useState(null);
+    const dragSongsRef = useRef(songs); // Keep track of songs during drag
+
     useEffect(() => {
         if (playlist) {
             setPlaylistName(playlist.name || '');
@@ -33,6 +39,11 @@ export default function EditPlaylistModal({ playlist, onClose, onSave }) {
             setRedoStack([]);
         }
     }, [playlist]);
+
+    // Keep drag ref in sync with songs
+    useEffect(() => {
+        dragSongsRef.current = songs;
+    }, [songs]);
 
     // Save current state to undo stack before making changes
     const saveToUndoStack = useCallback(() => {
@@ -104,6 +115,62 @@ export default function EditPlaylistModal({ playlist, onClose, onSave }) {
         };
         setSongs(newSongs);
         setEditingSongIndex(null);
+    };
+
+    const handleDragStart = (e, index) => {
+        setDraggedIndex(index);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', index.toString());
+        setTimeout(() => {
+            e.target.classList.add('dragging');
+        }, 0);
+    };
+
+    const handleDragEnd = (e) => {
+        e.target.classList.remove('dragging');
+        setDraggedIndex(null);
+        setDragOverIndex(null);
+    };
+
+    const handleDragOver = (e, index) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        if (index !== dragOverIndex) {
+            setDragOverIndex(index);
+        }
+    };
+
+    const handleDragLeave = (e) => {
+        // Only clear if actually leaving the element (not entering a child)
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+            setDragOverIndex(null);
+        }
+    };
+
+    const handleDrop = (e, dropIndex) => {
+        e.preventDefault();
+        
+        const fromIndex = draggedIndex;
+        const toIndex = dropIndex;
+        
+        if (fromIndex === null || fromIndex === toIndex) {
+            setDraggedIndex(null);
+            setDragOverIndex(null);
+            return;
+        }
+        
+        // Save to undo stack before reordering
+        saveToUndoStack();
+        
+        // Reorder songs
+        const newSongs = [...songs];
+        const [draggedSong] = newSongs.splice(fromIndex, 1);
+        newSongs.splice(toIndex, 0, draggedSong);
+        
+        setSongs(newSongs);
+        setDraggedIndex(null);
+        setDragOverIndex(null);
     };
 
     // Navigate to Songs Catalog to add songs
@@ -195,7 +262,7 @@ export default function EditPlaylistModal({ playlist, onClose, onSave }) {
                         </Button>
                     </div>
                     
-                    {/* Song List */}
+                    {/* Song List - Draggable */}
                     <div className="edit-modal-songs">
                         {songs.length === 0 ? (
                             <div className="no-songs-message">
@@ -203,7 +270,21 @@ export default function EditPlaylistModal({ playlist, onClose, onSave }) {
                             </div>
                         ) : (
                             songs.map((song, index) => (
-                                <div key={index} className="edit-song-item">
+                                <div 
+                                    key={index} 
+                                    className={`edit-song-item ${draggedIndex === index ? 'dragging' : ''} ${dragOverIndex === index ? 'drag-over' : ''}`}
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, index)}
+                                    onDragEnd={handleDragEnd}
+                                    onDragOver={(e) => handleDragOver(e, index)}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={(e) => handleDrop(e, index)}
+                                >
+                                    {/* Drag Handle */}
+                                    <div className="drag-handle" title="Drag to reorder">
+                                        <DragIndicatorIcon sx={{ fontSize: 20, color: '#888', cursor: 'grab' }} />
+                                    </div>
+                                    
                                     <span className="edit-song-text">
                                         {index + 1}. {song.title} by {song.artist} ({song.year})
                                     </span>
@@ -350,4 +431,3 @@ export default function EditPlaylistModal({ playlist, onClose, onSave }) {
         </div>
     );
 }
-

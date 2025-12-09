@@ -1493,6 +1493,36 @@ input {
   border: 1px solid #333;
   border-radius: 4px;
   padding: 10px 15px;
+  cursor: grab;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.edit-song-item:active {
+  cursor: grabbing;
+}
+
+.edit-song-item.dragging {
+  opacity: 0.5;
+  background-color: #ffe082;
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.edit-song-item.drag-over {
+  border: 2px dashed #5c4d7d;
+  background-color: #e1bee7;
+}
+
+.drag-handle {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 .edit-song-text {
