@@ -1,6 +1,5 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import AuthContext from '../auth';
-import { GlobalStoreContext } from '../store';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
@@ -16,10 +15,31 @@ export default function SongCatalogCard({
     onAddToPlaylist 
 }) {
     const { auth } = useContext(AuthContext);
-    const { store } = useContext(GlobalStoreContext);
     const [anchorEl, setAnchorEl] = useState(null);
-    const [playlistMenuAnchor, setPlaylistMenuAnchor] = useState(null);
+    const [playlistSubmenuAnchor, setPlaylistSubmenuAnchor] = useState(null);
+    const [userPlaylists, setUserPlaylists] = useState([]);
     const isMenuOpen = Boolean(anchorEl);
+
+    // Fetch user's playlists when menu opens
+    useEffect(() => {
+        if (isMenuOpen && auth.loggedIn) {
+            fetchUserPlaylists();
+        }
+    }, [isMenuOpen, auth.loggedIn]);
+
+    const fetchUserPlaylists = async () => {
+        try {
+            const response = await fetch('http://localhost:4000/store/playlists?view=home&sortBy=lastEditedDate&sortOrder=desc', {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            if (data.success) {
+                setUserPlaylists(data.playlists || []);
+            }
+        } catch (error) {
+            console.error('Error fetching playlists:', error);
+        }
+    };
 
     const handleMenuOpen = (event) => {
         event.stopPropagation();
@@ -28,15 +48,62 @@ export default function SongCatalogCard({
 
     const handleMenuClose = () => {
         setAnchorEl(null);
-        setPlaylistMenuAnchor(null);
+        setPlaylistSubmenuAnchor(null);
     };
 
     const handleAddToPlaylistHover = (event) => {
-        setPlaylistMenuAnchor(event.currentTarget);
+        setPlaylistSubmenuAnchor(event.currentTarget);
     };
 
-    const handlePlaylistSelect = (playlistId) => {
-        onAddToPlaylist(song.id, playlistId);
+    const handleAddToPlaylistLeave = () => {
+        setPlaylistSubmenuAnchor(null);
+    };
+
+    const handlePlaylistSelect = async (playlistId) => {
+        // Add song to the selected playlist
+        try {
+            // First get the playlist
+            const getResponse = await fetch(`http://localhost:4000/store/playlist/${playlistId}`, {
+                credentials: 'include'
+            });
+            const getData = await getResponse.json();
+            
+            if (getData.success) {
+                const playlist = getData.playlist;
+                const newSong = {
+                    title: song.title,
+                    artist: song.artist,
+                    year: song.year,
+                    youTubeId: song.youTubeId
+                };
+                
+                // Add the song to the playlist's songs array
+                const updatedSongs = [...(playlist.songs || []), newSong];
+                
+                // Update the playlist
+                const updateResponse = await fetch(`http://localhost:4000/store/playlist/${playlistId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        playlist: {
+                            songs: updatedSongs
+                        }
+                    })
+                });
+                
+                if (updateResponse.ok) {
+                    if (onAddToPlaylist) {
+                        onAddToPlaylist(song.id, playlistId);
+                    }
+                    alert(`Added "${song.title}" to playlist!`);
+                }
+            }
+        } catch (error) {
+            console.error('Error adding song to playlist:', error);
+        }
         handleMenuClose();
     };
 
@@ -51,9 +118,6 @@ export default function SongCatalogCard({
         }
         handleMenuClose();
     };
-
-    // Get user's playlists for the submenu
-    const userPlaylists = store.idNamePairs || [];
 
     return (
         <div 
@@ -97,24 +161,35 @@ export default function SongCatalogCard({
             >
                 <MenuItem 
                     onMouseEnter={handleAddToPlaylistHover}
+                    onMouseLeave={handleAddToPlaylistLeave}
                     sx={{ position: 'relative' }}
                 >
                     Add to Playlist
                     {/* Submenu for playlists */}
-                    {playlistMenuAnchor && userPlaylists.length > 0 && (
-                        <div className="playlist-submenu">
-                            {userPlaylists.map((playlist) => (
-                                <div
-                                    key={playlist._id || playlist.id}
-                                    className="playlist-submenu-item"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handlePlaylistSelect(playlist._id || playlist.id);
-                                    }}
-                                >
-                                    {playlist.name}
+                    {playlistSubmenuAnchor && (
+                        <div 
+                            className="playlist-submenu"
+                            onMouseEnter={() => setPlaylistSubmenuAnchor(playlistSubmenuAnchor)}
+                            onMouseLeave={handleAddToPlaylistLeave}
+                        >
+                            {userPlaylists.length === 0 ? (
+                                <div className="playlist-submenu-empty">
+                                    No playlists available
                                 </div>
-                            ))}
+                            ) : (
+                                userPlaylists.map((playlist) => (
+                                    <div
+                                        key={playlist.id}
+                                        className="playlist-submenu-item"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePlaylistSelect(playlist.id);
+                                        }}
+                                    >
+                                        {playlist.name}
+                                    </div>
+                                ))
+                            )}
                         </div>
                     )}
                 </MenuItem>
@@ -135,4 +210,3 @@ export default function SongCatalogCard({
         </div>
     );
 }
-

@@ -6,14 +6,13 @@ import Button from '@mui/material/Button';
 export default function PlaylistCard({ 
     playlist, 
     isOwner, 
-    onPlay, 
+    onPlay,
+    onEdit, 
     onCopy, 
     onDelete,
     onRefresh 
 }) {
     const [expanded, setExpanded] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
-    const [editName, setEditName] = useState(playlist?.name || '');
 
     // Guard against undefined playlist
     if (!playlist) {
@@ -24,54 +23,23 @@ export default function PlaylistCard({
         setExpanded(!expanded);
     };
 
-    const handleEdit = () => {
-        setIsEditing(true);
-        setEditName(playlist?.name || '');
-    };
-
-    const handleSaveName = async () => {
-        if (editName.trim() === '') return;
-        
+    const handleTogglePublish = async () => {
         try {
-            const response = await fetch(`http://localhost:4000/store/playlist/${playlist.id}`, {
+            const newPublishedState = !playlist.published;
+            const response = await fetch(`http://localhost:4000/store/playlist/${playlist.id}/publish`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify({ name: editName.trim() })
-            });
-            
-            if (response.ok) {
-                setIsEditing(false);
-                onRefresh();
-            }
-        } catch (error) {
-            console.error('Error updating playlist:', error);
-        }
-    };
-
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            handleSaveName();
-        } else if (e.key === 'Escape') {
-            setIsEditing(false);
-            setEditName(playlist?.name || '');
-        }
-    };
-
-    const handlePublish = async () => {
-        try {
-            const response = await fetch(`http://localhost:4000/store/playlist/${playlist.id}/publish`, {
-                method: 'PUT',
-                credentials: 'include'
+                body: JSON.stringify({ published: newPublishedState })
             });
             
             if (response.ok) {
                 onRefresh();
             }
         } catch (error) {
-            console.error('Error publishing playlist:', error);
+            console.error('Error toggling publish status:', error);
         }
     };
 
@@ -98,19 +66,7 @@ export default function PlaylistCard({
                 {getAvatarDisplay()}
                 
                 <div className="playlist-card-info">
-                    {isEditing ? (
-                        <input
-                            type="text"
-                            value={editName}
-                            onChange={(e) => setEditName(e.target.value)}
-                            onKeyDown={handleKeyPress}
-                            onBlur={handleSaveName}
-                            autoFocus
-                            className="playlist-name-input"
-                        />
-                    ) : (
-                        <div className="playlist-name">{playlist.name}</div>
-                    )}
+                    <div className="playlist-name">{playlist.name}</div>
                     <div className="playlist-owner">{playlist.ownerName}</div>
                 </div>
                 
@@ -119,7 +75,7 @@ export default function PlaylistCard({
                         <Button
                             variant="outlined"
                             size="small"
-                            onClick={handleEdit}
+                            onClick={onEdit}
                             sx={{
                                 borderColor: '#5c4d7d',
                                 color: '#5c4d7d',
@@ -187,20 +143,18 @@ export default function PlaylistCard({
                     {/* Owner Actions */}
                     {isOwner && (
                         <div className="playlist-owner-actions">
-                            {!playlist.published && (
-                                <Button
-                                    variant="contained"
-                                    size="small"
-                                    onClick={handlePublish}
-                                    sx={{
-                                        backgroundColor: '#4caf50',
-                                        fontSize: '11px',
-                                        '&:hover': { backgroundColor: '#66bb6a' }
-                                    }}
-                                >
-                                    Publish
-                                </Button>
-                            )}
+                            <Button
+                                variant="contained"
+                                size="small"
+                                onClick={handleTogglePublish}
+                                sx={{
+                                    backgroundColor: playlist.published ? '#ff9800' : '#4caf50',
+                                    fontSize: '11px',
+                                    '&:hover': { backgroundColor: playlist.published ? '#ffa726' : '#66bb6a' }
+                                }}
+                            >
+                                {playlist.published ? 'Unpublish' : 'Publish'}
+                            </Button>
                             <Button
                                 variant="contained"
                                 size="small"

@@ -2,6 +2,7 @@ import MUIAddSongModal from './MUIAddSongModal'
 import AppBanner from './AppBanner'
 import EditAccountScreen from './EditAccountScreen'
 import MUIEditCatalogSongModal from './MUIEditCatalogSongModal' 
+import MUIEditPlaylistModal from './MUIEditPlaylistModal'
 import EditToolbar from './EditToolbar'
 import HomeScreen from './HomeScreen'   
 import HomeWrapper from './HomeWrapper'
@@ -30,6 +31,7 @@ export {
     AppBanner,
     EditAccountScreen,
     MUIEditCatalogSongModal,
+    MUIEditPlaylistModal,
     EditToolbar, 
     HomeScreen,
     HomeWrapper,

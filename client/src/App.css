@@ -17,7 +17,7 @@
 }
 
 body {
-  background-color: #f8ccef; /* Light purple background for entire app */
+  background-color: #f8ccef; /* Light purple/pink? background for entire app */
   margin: 0;
   padding: 0;
 }
@@ -773,8 +773,6 @@ input {
   }
 }
 
-/* ==================== SONGS CATALOG SCREEN ==================== */
-
 #songs-catalog-screen {
   position: absolute;
   left: 0;
@@ -981,6 +979,13 @@ input {
   background-color: #e57373;
 }
 
+.playlist-submenu-empty {
+  padding: 10px 15px;
+  color: #666;
+  font-style: italic;
+  font-size: 12px;
+}
+
 /* Song Modal (Add/Edit) */
 .modal-overlay {
   position: fixed;
@@ -1091,8 +1096,6 @@ input {
 .cancel-btn:hover {
   background-color: #777;
 }
-
-/* ==================== PLAYLISTS SCREEN ==================== */
 
 #playlists-screen {
   position: absolute;
@@ -1278,7 +1281,7 @@ input {
   font-weight: 500;
 }
 
-/* ==================== PLAY PLAYLIST MODAL ==================== */
+
 
 .play-playlist-modal {
   background-color: #a5d6a7;
@@ -1412,4 +1415,145 @@ input {
   background-color: #e8e8e8;
   padding: 8px 16px;
   border-radius: 20px;
+}
+
+.edit-playlist-modal {
+  background-color: #a5d6a7;
+  border-radius: 8px;
+  width: 600px;
+  max-width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-modal-header {
+  background-color: #388e3c;
+  color: white;
+  padding: 12px 20px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.edit-modal-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.edit-modal-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #81c784;
+}
+
+.edit-playlist-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+  cursor: pointer;
+}
+
+.edit-playlist-name:hover {
+  color: #5c4d7d;
+}
+
+.edit-playlist-name-input {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  border: 2px solid #5c4d7d;
+  padding: 4px 10px;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.edit-modal-songs {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+  max-height: 300px;
+}
+
+.edit-song-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff9c4;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 10px 15px;
+}
+
+.edit-song-text {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+}
+
+.edit-song-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.no-songs-message {
+  text-align: center;
+  color: #666;
+  padding: 30px;
+  font-style: italic;
+}
+
+.edit-modal-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 15px;
+  border-top: 1px solid #81c784;
+}
+
+.edit-modal-undo-redo {
+  display: flex;
+  gap: 10px;
+}
+
+/* Edit Song Sub-Modal */
+.edit-song-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.edit-song-modal {
+  background-color: #a5d6a7;
+  border-radius: 8px;
+  width: 350px;
+  overflow: hidden;
+}
+
+.edit-song-modal-header {
+  background-color: #388e3c;
+  color: white;
+  padding: 10px 15px;
+  font-weight: bold;
+}
+
+.edit-song-modal-content {
+  padding: 15px;
 }

@@ -3,6 +3,7 @@ import { GlobalStoreContext } from '../store'
 import AuthContext from '../auth'
 import PlaylistCard from './PlaylistCard'
 import PlayPlaylistModal from './PlayPlaylistModal'
+import MUIEditPlaylistModal from './MUIEditPlaylistModal'
 import MUIDeleteModal from './MUIDeleteModal'
 import ClearIcon from '@mui/icons-material/Clear';
 import SearchIcon from '@mui/icons-material/Search';
@@ -32,6 +33,7 @@ const PlaylistsScreen = () => {
     
     // Modal states
     const [playingPlaylist, setPlayingPlaylist] = useState(null);
+    const [editingPlaylist, setEditingPlaylist] = useState(null);
 
     // Load playlists on mount and when sort changes
     useEffect(() => {
@@ -119,6 +121,10 @@ const PlaylistsScreen = () => {
 
     const handlePlayPlaylist = (playlist) => {
         setPlayingPlaylist(playlist);
+    };
+
+    const handleEditPlaylist = (playlist) => {
+        setEditingPlaylist(playlist);
     };
 
     const handleCopyPlaylist = async (playlistId) => {
@@ -303,6 +309,7 @@ const PlaylistsScreen = () => {
                                     playlist={playlist}
                                     isOwner={isOwnPlaylist(playlist)}
                                     onPlay={() => handlePlayPlaylist(playlist)}
+                                    onEdit={() => handleEditPlaylist(playlist)}
                                     onCopy={() => handleCopyPlaylist(playlist.id)}
                                     onDelete={() => handleDeletePlaylist(playlist.id)}
                                     onRefresh={loadPlaylists}
@@ -336,6 +343,15 @@ const PlaylistsScreen = () => {
                 <PlayPlaylistModal
                     playlist={playingPlaylist}
                     onClose={() => setPlayingPlaylist(null)}
+                />
+            )}
+            
+            {/* Edit Playlist Modal */}
+            {editingPlaylist && (
+                <MUIEditPlaylistModal
+                    playlist={editingPlaylist}
+                    onClose={() => setEditingPlaylist(null)}
+                    onSave={loadPlaylists}
                 />
             )}
             
