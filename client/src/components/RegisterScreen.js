@@ -31,9 +31,11 @@ export default function RegisterScreen() {
             email.includes('@') &&
             password.length >= 8 &&
             passwordVerify.length > 0 &&
-            password === passwordVerify;
+            password === passwordVerify &&
+            avatarBase64 !== null &&  // Must have a valid avatar
+            avatarError === null;      // No avatar errors
         setIsFormValid(isValid);
-    }, [userName, email, password, passwordVerify]);
+    }, [userName, email, password, passwordVerify, avatarBase64, avatarError]);
 
     const handleAvatarSelect = (event) => {
         const file = event.target.files[0];
@@ -212,6 +214,9 @@ export default function RegisterScreen() {
                             )}
                             {passwordVerify.length > 0 && password !== passwordVerify && (
                                 <div className="validation-hint">Passwords do not match</div>
+                            )}
+                            {!avatarBase64 && userName && email && password && passwordVerify && (
+                                <div className="validation-hint">Please select a valid avatar image</div>
                             )}
                             
                             <button 
