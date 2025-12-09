@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import Button from '@mui/material/Button';
@@ -8,6 +9,8 @@ import IconButton from '@mui/material/IconButton';
 export default function PlayPlaylistModal({ playlist, onClose }) {
     const [currentSongIndex, setCurrentSongIndex] = useState(0);
     const [hasRecordedPlay, setHasRecordedPlay] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(true);
+    const playerRef = useRef(null);
 
     // Record play when modal opens
     useEffect(() => {
@@ -22,12 +25,35 @@ export default function PlayPlaylistModal({ playlist, onClose }) {
         }
     }, [playlist, hasRecordedPlay]);
 
+    // Reset to playing when song changes (autoplay kicks in)
+    useEffect(() => {
+        setIsPlaying(true);
+    }, [currentSongIndex]);
+
     if (!playlist) {
         return null;
     }
 
     const songs = playlist.songs || [];
     const currentSong = songs[currentSongIndex];
+
+    const handlePlayPause = () => {
+        if (playerRef.current) {
+            const iframe = playerRef.current;
+            if (isPlaying) {
+                iframe.contentWindow.postMessage(
+                    JSON.stringify({ event: 'command', func: 'pauseVideo' }), 
+                    '*'
+                );
+            } else {
+                iframe.contentWindow.postMessage(
+                    JSON.stringify({ event: 'command', func: 'playVideo' }), 
+                    '*'
+                );
+            }
+            setIsPlaying(!isPlaying);
+        }
+    };
 
     const handlePrevious = () => {
         if (currentSongIndex > 0) {
@@ -101,9 +127,10 @@ export default function PlayPlaylistModal({ playlist, onClose }) {
                         <div className="play-modal-player">
                             {currentSong ? (
                                 <iframe
+                                    ref={playerRef}
                                     width="100%"
                                     height="200"
-                                    src={`https://www.youtube.com/embed/${currentSong.youTubeId}?autoplay=1`}
+                                    src={`https://www.youtube.com/embed/${currentSong.youTubeId}?autoplay=1&enablejsapi=1`}
                                     title="YouTube video player"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen
@@ -117,17 +144,21 @@ export default function PlayPlaylistModal({ playlist, onClose }) {
                         
                         <div className="play-modal-controls">
                             <IconButton 
-                                onClick={() => {}} 
-                                sx={{ color: '#333' }}
-                            >
-                                <PlayArrowIcon />
-                            </IconButton>
-                            <IconButton 
                                 onClick={handlePrevious}
                                 disabled={currentSongIndex === 0}
                                 sx={{ color: currentSongIndex === 0 ? '#ccc' : '#333' }}
                             >
                                 <SkipPreviousIcon />
+                            </IconButton>
+                            <IconButton 
+                                onClick={handlePlayPause}
+                                sx={{ 
+                                    color: '#333',
+                                    backgroundColor: '#e0e0e0',
+                                    '&:hover': { backgroundColor: '#bdbdbd' }
+                                }}
+                            >
+                                {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
                             </IconButton>
                             <IconButton 
                                 onClick={handleNext}
@@ -157,4 +188,3 @@ export default function PlayPlaylistModal({ playlist, onClose }) {
         </div>
     );
 }
-
