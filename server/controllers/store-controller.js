@@ -244,44 +244,6 @@ publishPlaylist = async (req, res) => {
     }
 }
 
-// ADD COMMENT to a playlist
-commentOnPlaylist = async (req, res) => {
-    // req.userId is set by auth.verify middleware
-    try {
-        const db = req.app.locals.db;
-        const playlistId = req.params.id;
-        const { text } = req.body;
-        
-        if (!text || text.trim().length === 0) {
-            return res.status(400).json({ errorMessage: 'Comment text is required' });
-        }
-        
-        const playlist = await db.getPlaylistById(playlistId);
-        if (!playlist) {
-            return res.status(404).json({ errorMessage: 'Playlist not found!' });
-        }
-        
-        const user = await db.findUserById(req.userId);
-        if (!user) {
-            return res.status(400).json({ errorMessage: 'User not found' });
-        }
-        
-        const newComment = {
-            userName: user.userName,
-            text: text.trim(),
-            timestamp: new Date()
-        };
-        
-        const comments = [...(playlist.comments || []), newComment];
-        const updated = await db.updatePlaylistById(playlistId, { comments });
-        
-        return res.status(200).json({ success: true, playlist: updated });
-    } catch (err) {
-        console.error(err);
-        return res.status(400).json({ success: false, error: err.message || String(err) });
-    }
-}
-
 // PLAY a playlist (track listens and listeners)
 playPlaylist = async (req, res) => {
     // Allow both logged-in and guest users to play
@@ -361,7 +323,6 @@ module.exports = {
     getPlaylists,
     updatePlaylist,
     publishPlaylist,
-    commentOnPlaylist,
     playPlaylist,
     copyPlaylist
 }

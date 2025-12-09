@@ -19,9 +19,8 @@ router.get('/playlist/:id', StoreController.getPlaylistById)
 router.get('/playlistpairs', auth.verify, StoreController.getPlaylistPairs)
 router.get('/playlists', StoreController.getPlaylists)
 
-// Social features (most require auth, play allows guests)
+// Additional playlist features
 router.put('/playlist/:id/publish', auth.verify, StoreController.publishPlaylist)
-router.post('/playlist/:id/comment', auth.verify, StoreController.commentOnPlaylist)
 router.post('/playlist/:id/play', StoreController.playPlaylist)
 router.post('/playlist/:id/copy', auth.verify, StoreController.copyPlaylist)
 

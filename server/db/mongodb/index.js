@@ -81,7 +81,6 @@ class MongoDatabaseManager extends DatabaseManager {
             published: published || false,
             listens: 0,
             uniqueListeners: [],
-            comments: [],
             createdDate: new Date(),
             lastEditedDate: new Date()
         });
@@ -203,7 +202,6 @@ class MongoDatabaseManager extends DatabaseManager {
             published: doc.published,
             listens: doc.listens,
             uniqueListeners: doc.uniqueListeners || [],
-            comments: doc.comments || [],
             createdDate: doc.createdDate,
             lastEditedDate: doc.lastEditedDate
         };

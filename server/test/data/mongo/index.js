@@ -76,7 +76,6 @@ async function resetMongo() {
                 published: false, // Start unpublished
                 listens: 0,
                 uniqueListeners: [],
-                comments: [],
                 createdDate: new Date(),
                 lastEditedDate: new Date()
             });

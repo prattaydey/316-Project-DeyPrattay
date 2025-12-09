@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import ClearIcon from '@mui/icons-material/Clear';
 
-export default function EditCatalogSongModal({ song, onClose, onSongUpdated }) {
+export default function MUIEditCatalogSongModal({ song, onClose, onSongUpdated }) {
     const [title, setTitle] = useState(song.title || '');
     const [artist, setArtist] = useState(song.artist || '');
     const [year, setYear] = useState(song.year?.toString() || '');

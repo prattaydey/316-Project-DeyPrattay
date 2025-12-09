@@ -19,12 +19,7 @@ const playlistSchema = new Schema(
         }], required: true },
         published: { type: Boolean, default: false },
         listens: { type: Number, default: 0 },
-        uniqueListeners: [{ type: String }], // Array of user IDs who have listened
-        comments: [{
-            userName: String,
-            text: String,
-            timestamp: { type: Date, default: Date.now }
-        }],
+        uniqueListeners: [{ type: String }],
         createdDate: { type: Date, default: Date.now },
         lastEditedDate: { type: Date, default: Date.now }
     },
