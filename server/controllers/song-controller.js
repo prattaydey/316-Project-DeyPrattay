@@ -80,15 +80,16 @@ getSongs = async (req, res) => {
     
     try {
         const db = req.app.locals.db;
-        const { title, artist, addedBy, sortBy, sortOrder } = req.query;
+        const { title, artist, year, addedBy, sortBy, sortOrder } = req.query;
         
         let songs;
         
         // If any filters are provided, use search
-        if (title || artist || addedBy || sortBy) {
+        if (title || artist || year || addedBy || sortBy) {
             songs = await db.searchSongs({
                 title,
                 artist,
+                year,
                 addedBy,
                 sortBy: sortBy || 'createdDate',
                 sortOrder: sortOrder || 'desc'
@@ -268,10 +269,45 @@ deleteSong = async (req, res) => {
     }
 }
 
+// POST play a song (increment listen count)
+playSong = async (req, res) => {
+    console.log("playSong with id: " + JSON.stringify(req.params.id));
+    
+    try {
+        const db = req.app.locals.db;
+        const song = await db.getSongById(req.params.id);
+        
+        if (!song) {
+            return res.status(404).json({ 
+                success: false, 
+                errorMessage: 'Song not found!' 
+            });
+        }
+        
+        // Increment listen count
+        const newListens = (song.listens || 0) + 1;
+        const updated = await db.updateSongById(req.params.id, { listens: newListens });
+        
+        return res.status(200).json({ 
+            success: true, 
+            song: updated,
+            listens: newListens,
+            message: 'Listen recorded!' 
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(400).json({
+            success: false,
+            error: err.message || String(err)
+        });
+    }
+}
+
 module.exports = {
     createSong,
     getSongs,
     getSongById,
     updateSong,
-    deleteSong
+    deleteSong,
+    playSong
 }

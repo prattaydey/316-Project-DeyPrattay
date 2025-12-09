@@ -7,6 +7,7 @@ router.get('/', SongController.getSongs)
 router.get('/:id', SongController.getSongById)
 router.put('/:id', SongController.updateSong)
 router.delete('/:id', SongController.deleteSong)
+router.post('/:id/play', SongController.playSong)
 
 module.exports = router
 

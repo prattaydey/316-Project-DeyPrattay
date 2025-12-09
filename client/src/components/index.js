@@ -1,6 +1,9 @@
+import MUIAddSongModal from './MUIAddSongModal'
 import AppBanner from './AppBanner'
+import EditAccountScreen from './EditAccountScreen'
+import MUIEditCatalogSongModal from './MUIEditCatalogSongModal' 
 import EditToolbar from './EditToolbar'
-import HomeScreen from './HomeScreen'
+import HomeScreen from './HomeScreen'   
 import HomeWrapper from './HomeWrapper'
 import ListCard from './PlaylistCard'
 import LoginScreen from './LoginScreen'
@@ -11,6 +14,8 @@ import MUIErrorModal from './MUIErrorModal'
 import PlaylistsScreen from './PlaylistsScreen'
 import RegisterScreen from './RegisterScreen'
 import SongCard from './SongCard'
+import SongCatalogCard from './SongCatalogCard'
+import SongsCatalogScreen from './SongsCatalogScreen'
 import SplashScreen from './SplashScreen'
 import Statusbar from './Statusbar'
 import WorkspaceScreen from './WorkspaceScreen'
@@ -21,7 +26,10 @@ import WorkspaceScreen from './WorkspaceScreen'
     @author McKilla Gorilla
 */
 export { 
-    AppBanner,  
+    MUIAddSongModal,
+    AppBanner,
+    EditAccountScreen,
+    MUIEditCatalogSongModal,
     EditToolbar, 
     HomeScreen,
     HomeWrapper,
@@ -33,6 +41,8 @@ export {
     //MUIRemoveSongModal,
     PlaylistsScreen,
     SongCard,
+    SongCatalogCard,
+    SongsCatalogScreen,
     RegisterScreen,
     SplashScreen,
     Statusbar, 

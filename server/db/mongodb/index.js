@@ -160,7 +160,7 @@ class MongoDatabaseManager extends DatabaseManager {
     }
 
     async searchSongs(query) {
-        const { title, artist, addedBy, sortBy, sortOrder } = query;
+        const { title, artist, year, addedBy, sortBy, sortOrder } = query;
         let filter = {};
         
         if (title) {
@@ -168,6 +168,12 @@ class MongoDatabaseManager extends DatabaseManager {
         }
         if (artist) {
             filter.artist = { $regex: artist, $options: 'i' };
+        }
+        if (year) {
+            const yearNum = parseInt(year);
+            if (!isNaN(yearNum)) {
+                filter.year = yearNum;
+            }
         }
         if (addedBy) {
             filter.addedBy = addedBy;

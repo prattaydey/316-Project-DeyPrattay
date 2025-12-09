@@ -10,7 +10,8 @@ export const AuthActionType = {
     GET_LOGGED_IN: "GET_LOGGED_IN",
     LOGIN_USER: "LOGIN_USER",
     LOGOUT_USER: "LOGOUT_USER",
-    REGISTER_USER: "REGISTER_USER"
+    REGISTER_USER: "REGISTER_USER",
+    UPDATE_USER: "UPDATE_USER"
 }
 
 function AuthContextProvider(props) {
@@ -50,6 +51,13 @@ function AuthContextProvider(props) {
                 })
             }
             case AuthActionType.REGISTER_USER: {
+                return setAuth({
+                    user: payload.user,
+                    loggedIn: payload.loggedIn,
+                    errorMessage: payload.errorMessage
+                })
+            }
+            case AuthActionType.UPDATE_USER: {
                 return setAuth({
                     user: payload.user,
                     loggedIn: payload.loggedIn,
@@ -138,6 +146,34 @@ function AuthContextProvider(props) {
                 payload: null
             })
             history.push("/");
+        }
+    }
+
+    auth.updateUser = async function(userName, email, password, passwordVerify, avatarImage) {
+        console.log("UPDATING USER");
+        try {
+            const response = await authRequestSender.updateUser(userName, email, password, passwordVerify, avatarImage);
+            if (response.status === 200) {
+                console.log("Updated Successfully");
+                authReducer({
+                    type: AuthActionType.UPDATE_USER,
+                    payload: {
+                        user: response.data.user,
+                        loggedIn: true,
+                        errorMessage: null
+                    }
+                })
+                history.push("/");
+            }
+        } catch(error) {
+            authReducer({
+                type: AuthActionType.UPDATE_USER,
+                payload: {
+                    user: auth.user,
+                    loggedIn: true,
+                    errorMessage: error.response?.data?.errorMessage || "Failed to update account"
+                }
+            })
         }
     }
 

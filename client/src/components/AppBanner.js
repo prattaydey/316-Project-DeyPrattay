@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import AuthContext from '../auth';
 import { GlobalStoreContext } from '../store'
 
@@ -9,16 +9,19 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import HomeIcon from '@mui/icons-material/Home';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 
 export default function AppBanner() {
     const { auth } = useContext(AuthContext);
     const { store } = useContext(GlobalStoreContext);
     const [anchorEl, setAnchorEl] = useState(null);
     const isMenuOpen = Boolean(anchorEl);
+    const location = useLocation();
 
     const handleProfileMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -74,6 +77,7 @@ export default function AppBanner() {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
+            <MenuItem onClick={handleMenuClose}><Link to='/edit-account/'>Edit Account</Link></MenuItem>
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </Menu>        
 
@@ -87,12 +91,28 @@ export default function AppBanner() {
     }
     
     function getAccountMenu(loggedIn) {
-        let userInitials = auth.getUserInitials();
-        console.log("userInitials: " + userInitials);
-        if (loggedIn) 
+        if (loggedIn && auth.user) {
+            // If user has an avatar, display it
+            if (auth.user.avatarImage) {
+                return (
+                    <img 
+                        src={auth.user.avatarImage} 
+                        alt="User avatar" 
+                        style={{ 
+                            width: '100%', 
+                            height: '100%', 
+                            objectFit: 'cover',
+                            borderRadius: '50%'
+                        }} 
+                    />
+                );
+            }
+            // Otherwise show initials
+            let userInitials = auth.getUserInitials();
             return <div style={{ color: '#333', fontWeight: 'bold', fontSize: '14px' }}>{userInitials}</div>;
-        else
-            return <AccountCircle sx={{ color: '#333', fontSize: 28 }} />;
+        }
+        // Not logged in - show default icon
+        return <AccountCircle sx={{ color: '#333', fontSize: 28 }} />;
     }
 
     return (
@@ -118,7 +138,61 @@ export default function AppBanner() {
                         </Box>
                     </Link>
                     
-                    <Box sx={{ flexGrow: 1 }}>{editToolbar}</Box>
+                    {/* Navigation Tabs - only show when logged in */}
+                    {auth.loggedIn && (
+                        <Box sx={{ display: 'flex', ml: 2, gap: 1 }}>
+                            <Button
+                                component={Link}
+                                to="/playlists"
+                                sx={{
+                                    backgroundColor: location.pathname === '/playlists' ? '#9c27b0' : '#7b1fa2',
+                                    color: 'white',
+                                    borderRadius: '20px',
+                                    px: 2,
+                                    py: 0.5,
+                                    fontSize: '12px',
+                                    textTransform: 'none',
+                                    '&:hover': {
+                                        backgroundColor: '#9c27b0'
+                                    }
+                                }}
+                            >
+                                Playlists
+                            </Button>
+                            <Button
+                                component={Link}
+                                to="/songs"
+                                sx={{
+                                    backgroundColor: location.pathname === '/songs' ? '#9c27b0' : '#7b1fa2',
+                                    color: 'white',
+                                    borderRadius: '20px',
+                                    px: 2,
+                                    py: 0.5,
+                                    fontSize: '12px',
+                                    textTransform: 'none',
+                                    '&:hover': {
+                                        backgroundColor: '#9c27b0'
+                                    }
+                                }}
+                            >
+                                Song Catalog
+                            </Button>
+                        </Box>
+                    )}
+                    
+                    {/* Title - centered */}
+                    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+                        <Typography 
+                            variant="h5" 
+                            sx={{ 
+                                color: 'white', 
+                                fontWeight: 500,
+                                fontFamily: '"Lexend Exa", sans-serif'
+                            }}
+                        >
+                            The Playlister
+                        </Typography>
+                    </Box>
                     
                     {/* Account Button with white circle background */}
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -136,6 +210,7 @@ export default function AppBanner() {
                                 borderRadius: '50%',
                                 backgroundColor: 'white',
                                 border: '2px solid #333',
+                                overflow: 'hidden',
                                 '&:hover': {
                                     backgroundColor: '#f5f5f5'
                                 }

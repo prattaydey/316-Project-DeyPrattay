@@ -34,9 +34,19 @@ export const registerUser = (userName, email, password, passwordVerify, avatarIm
         avatarImage
     }, { base });
 }
+export const updateUser = (userName, email, password, passwordVerify, avatarImage) => {
+    return http.put(`/update/`, {
+        userName,
+        email,
+        password,
+        passwordVerify,
+        avatarImage
+    }, { base });
+}
 const apis = {
     getLoggedIn,
     registerUser,
+    updateUser,
     loginUser,
     logoutUser
 }
