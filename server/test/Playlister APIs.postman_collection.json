@@ -1,0 +1,588 @@
+{
+	"info": {
+		"_postman_id": "945d00e9-f9d8-4475-80c1-d284562c7063",
+		"name": "Playlister APIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "35102263"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"TestUser\",\n  \"email\": \"test@test.com\",\n  \"password\": \"password123\",\n  \"passwordVerify\": \"password123\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test@test.com\",\n  \"password\": \"password1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check Login Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/auth/loggedIn",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"loggedIn"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit User",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"TestUser\",\n  \"email\": \"test@test.com\",\n  \"password\": \"password1234\",\n  \"passwordVerify\": \"password1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/auth/update",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/auth/logout",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Song Catalog",
+			"item": [
+				{
+					"name": "Create Song",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Houstlantavegas\",\n  \"artist\": \"Drake\",\n  \"year\": 2011,\n  \"youTubeId\": \"gxbFzzqU6cA\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/songs/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"songs",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Songs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/songs/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"songs",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Songs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/songs/?title=Bohemian&artist=Queen",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"songs",
+								""
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "Bohemian"
+								},
+								{
+									"key": "artist",
+									"value": "Queen"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Song",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/songs/6937a25421e0ac4bef73fb51",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"songs",
+								"6937a25421e0ac4bef73fb51"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Song",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Updated Title\",\n  \"artist\": \"Updated Artist\",\n  \"year\": 1976,\n  \"youTubeId\": \"newYouTubeId\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/songs/6937a445a8e2ff5c6a418801",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"songs",
+								"6937a445a8e2ff5c6a418801"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Song (Only Creator)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/songs/6937a445a8e2ff5c6a418801",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"songs",
+								"6937a445a8e2ff5c6a418801"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Play Song",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/songs/6937a25421e0ac4bef73fb53/play",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"songs",
+								"6937a25421e0ac4bef73fb53",
+								"play"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Playlists",
+			"item": [
+				{
+					"name": "Create Playlist",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"My Awesome Playlist\",\n  \"songs\": [\n    {\n      \"title\": \"Bohemian Rhapsody\",\n      \"artist\": \"Queen\",\n      \"year\": 1975,\n      \"youTubeId\": \"fJ9rUzIMcZQ\"\n    }\n  ],\n  \"published\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/store/playlist",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"store",
+								"playlist"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Playlists (Home View)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/store/playlists?view=home",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"store",
+								"playlists"
+							],
+							"query": [
+								{
+									"key": "view",
+									"value": "home"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Published Playlists",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/store/playlists?view=all",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"store",
+								"playlists"
+							],
+							"query": [
+								{
+									"key": "view",
+									"value": "all"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Playlists",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/store/playlists?view=all&search=My Favorite Songs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"store",
+								"playlists"
+							],
+							"query": [
+								{
+									"key": "view",
+									"value": "all"
+								},
+								{
+									"key": "search",
+									"value": "My Favorite Songs"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Playlist",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/store/playlist/6936232b12cb4c85d47b0f65",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"store",
+								"playlist",
+								"6936232b12cb4c85d47b0f65"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Playlist",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"playlist\": {\n    \"name\": \"Updated Playlist Name\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/store/playlist/6937a497a8e2ff5c6a418815",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"store",
+								"playlist",
+								"6937a497a8e2ff5c6a418815"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publish/Unpublish Playlist",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"published\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/store/playlist/6937a497a8e2ff5c6a418815/publish",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"store",
+								"playlist",
+								"6937a497a8e2ff5c6a418815",
+								"publish"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Play Playlist (Track Listens)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/store/playlist/6937a497a8e2ff5c6a418815/play",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"store",
+								"playlist",
+								"6937a497a8e2ff5c6a418815",
+								"play"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Copy Playlist",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/store/playlist/6937a497a8e2ff5c6a418815/copy",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"store",
+								"playlist",
+								"6937a497a8e2ff5c6a418815",
+								"copy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Playlist",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/store/playlist/6937a497a8e2ff5c6a418815",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"store",
+								"playlist",
+								"6937a497a8e2ff5c6a418815"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
