@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import Button from '@mui/material/Button';
+import AuthContext from '../auth';
 
 export default function PlaylistCard({ 
     playlist, 
@@ -12,6 +13,7 @@ export default function PlaylistCard({
     onDelete,
     onRefresh 
 }) {
+    const { auth } = useContext(AuthContext);
     const [expanded, setExpanded] = useState(false);
 
     // Guard against undefined playlist
@@ -89,22 +91,25 @@ export default function PlaylistCard({
                             Edit
                         </Button>
                     )}
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={onCopy}
-                        sx={{
-                            borderColor: '#5c4d7d',
-                            color: '#5c4d7d',
-                            fontSize: '11px',
-                            py: 0.3,
-                            px: 1,
-                            minWidth: 'auto',
-                            '&:hover': { borderColor: '#7b68a6', backgroundColor: '#f3e5f5' }
-                        }}
-                    >
-                        Copy
-                    </Button>
+                    {/* Copy button - only show for logged in users */}
+                    {auth.loggedIn && (
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={onCopy}
+                            sx={{
+                                borderColor: '#5c4d7d',
+                                color: '#5c4d7d',
+                                fontSize: '11px',
+                                py: 0.3,
+                                px: 1,
+                                minWidth: 'auto',
+                                '&:hover': { borderColor: '#7b68a6', backgroundColor: '#f3e5f5' }
+                            }}
+                        >
+                            Copy
+                        </Button>
+                    )}
                     <Button
                         variant="contained"
                         size="small"

@@ -4,7 +4,6 @@ import EditAccountScreen from './EditAccountScreen'
 import MUIEditCatalogSongModal from './MUIEditCatalogSongModal' 
 import MUIEditPlaylistModal from './MUIEditPlaylistModal'
 import EditToolbar from './EditToolbar'
-import HomeScreen from './HomeScreen'   
 import HomeWrapper from './HomeWrapper'
 import LoginScreen from './LoginScreen'
 import MUIDeleteModal from './MUIDeleteModal'
@@ -32,8 +31,7 @@ export {
     EditAccountScreen,
     MUIEditCatalogSongModal,
     MUIEditPlaylistModal,
-    EditToolbar, 
-    HomeScreen,
+    EditToolbar,
     HomeWrapper,
     LoginScreen,
     MUIDeleteModal,

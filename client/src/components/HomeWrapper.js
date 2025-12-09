@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import HomeScreen from './HomeScreen'
+import PlaylistsScreen from './PlaylistsScreen'
 import SplashScreen from './SplashScreen'
 import AuthContext from '../auth'
 
@@ -7,8 +7,10 @@ export default function HomeWrapper() {
     const { auth } = useContext(AuthContext);
     console.log("HomeWrapper auth.loggedIn: " + auth.loggedIn);
     
+    // If logged in, show playlists screen (defaults to user's own playlists)
+    // If not logged in, show splash screen
     if (auth.loggedIn)
-        return <HomeScreen />
+        return <PlaylistsScreen />
     else
         return <SplashScreen />
 }
