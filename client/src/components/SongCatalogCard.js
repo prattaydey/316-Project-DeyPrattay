@@ -1,6 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import AuthContext from '../auth';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -16,11 +17,12 @@ export default function SongCatalogCard({
 }) {
     const { auth } = useContext(AuthContext);
     const [anchorEl, setAnchorEl] = useState(null);
-    const [playlistSubmenuAnchor, setPlaylistSubmenuAnchor] = useState(null);
+    const [playlistMenuAnchor, setPlaylistMenuAnchor] = useState(null);
     const [userPlaylists, setUserPlaylists] = useState([]);
     const isMenuOpen = Boolean(anchorEl);
+    const isPlaylistMenuOpen = Boolean(playlistMenuAnchor);
 
-    // Fetch user's playlists when menu opens
+    // Fetch user's playlists when main menu opens
     useEffect(() => {
         if (isMenuOpen && auth.loggedIn) {
             fetchUserPlaylists();
@@ -29,10 +31,12 @@ export default function SongCatalogCard({
 
     const fetchUserPlaylists = async () => {
         try {
+            console.log('Fetching user playlists...');
             const response = await fetch('http://localhost:4000/store/playlists?view=home&sortBy=lastEditedDate&sortOrder=desc', {
                 credentials: 'include'
             });
             const data = await response.json();
+            console.log('Playlists fetched:', data);
             if (data.success) {
                 setUserPlaylists(data.playlists || []);
             }
@@ -48,25 +52,27 @@ export default function SongCatalogCard({
 
     const handleMenuClose = () => {
         setAnchorEl(null);
-        setPlaylistSubmenuAnchor(null);
+        setPlaylistMenuAnchor(null);
     };
 
-    const handleAddToPlaylistHover = (event) => {
-        setPlaylistSubmenuAnchor(event.currentTarget);
+    const handleAddToPlaylistClick = (event) => {
+        event.stopPropagation();
+        setPlaylistMenuAnchor(event.currentTarget);
     };
 
-    const handleAddToPlaylistLeave = () => {
-        setPlaylistSubmenuAnchor(null);
+    const handlePlaylistMenuClose = () => {
+        setPlaylistMenuAnchor(null);
     };
 
-    const handlePlaylistSelect = async (playlistId) => {
-        // Add song to the selected playlist
+    const handlePlaylistSelect = async (playlistId, playlistName) => {
+        console.log('Adding song to playlist:', playlistId);
         try {
             // First get the playlist
             const getResponse = await fetch(`http://localhost:4000/store/playlist/${playlistId}`, {
                 credentials: 'include'
             });
             const getData = await getResponse.json();
+            console.log('Got playlist data:', getData);
             
             if (getData.success) {
                 const playlist = getData.playlist;
@@ -94,15 +100,20 @@ export default function SongCatalogCard({
                     })
                 });
                 
+                console.log('Update response:', updateResponse.status);
+                
                 if (updateResponse.ok) {
                     if (onAddToPlaylist) {
                         onAddToPlaylist(song.id, playlistId);
                     }
-                    alert(`Added "${song.title}" to playlist!`);
+                    alert(`Added "${song.title}" to "${playlistName}"!`);
+                } else {
+                    alert('Failed to add song to playlist');
                 }
             }
         } catch (error) {
             console.error('Error adding song to playlist:', error);
+            alert('Error adding song to playlist');
         }
         handleMenuClose();
     };
@@ -145,7 +156,7 @@ export default function SongCatalogCard({
                 </IconButton>
             )}
             
-            {/* Song Menu */}
+            {/* Main Song Menu */}
             <Menu
                 anchorEl={anchorEl}
                 open={isMenuOpen}
@@ -160,38 +171,11 @@ export default function SongCatalogCard({
                 }}
             >
                 <MenuItem 
-                    onMouseEnter={handleAddToPlaylistHover}
-                    onMouseLeave={handleAddToPlaylistLeave}
-                    sx={{ position: 'relative' }}
+                    onClick={handleAddToPlaylistClick}
+                    sx={{ display: 'flex', justifyContent: 'space-between' }}
                 >
                     Add to Playlist
-                    {/* Submenu for playlists */}
-                    {playlistSubmenuAnchor && (
-                        <div 
-                            className="playlist-submenu"
-                            onMouseEnter={() => setPlaylistSubmenuAnchor(playlistSubmenuAnchor)}
-                            onMouseLeave={handleAddToPlaylistLeave}
-                        >
-                            {userPlaylists.length === 0 ? (
-                                <div className="playlist-submenu-empty">
-                                    No playlists available
-                                </div>
-                            ) : (
-                                userPlaylists.map((playlist) => (
-                                    <div
-                                        key={playlist.id}
-                                        className="playlist-submenu-item"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handlePlaylistSelect(playlist.id);
-                                        }}
-                                    >
-                                        {playlist.name}
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    )}
+                    <ArrowRightIcon sx={{ ml: 1 }} />
                 </MenuItem>
                 {isOwner && (
                     <MenuItem 
@@ -205,6 +189,50 @@ export default function SongCatalogCard({
                     <MenuItem onClick={handleDelete}>
                         Remove from Catalog
                     </MenuItem>
+                )}
+            </Menu>
+
+            {/* Playlist Submenu */}
+            <Menu
+                anchorEl={playlistMenuAnchor}
+                open={isPlaylistMenuOpen}
+                onClose={handlePlaylistMenuClose}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                }}
+                sx={{
+                    '& .MuiPaper-root': {
+                        backgroundColor: '#ef9a9a',
+                        minWidth: '150px'
+                    }
+                }}
+            >
+                {userPlaylists.length === 0 ? (
+                    <MenuItem disabled sx={{ fontStyle: 'italic', color: '#666' }}>
+                        No playlists available
+                    </MenuItem>
+                ) : (
+                    userPlaylists.map((playlist) => (
+                        <MenuItem
+                            key={playlist.id}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handlePlaylistSelect(playlist.id, playlist.name);
+                            }}
+                            sx={{
+                                borderBottom: '1px solid #333',
+                                '&:last-child': { borderBottom: 'none' },
+                                '&:hover': { backgroundColor: '#e57373' }
+                            }}
+                        >
+                            {playlist.name}
+                        </MenuItem>
+                    ))
                 )}
             </Menu>
         </div>
