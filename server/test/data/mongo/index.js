@@ -76,7 +76,7 @@ async function resetMongo() {
                 ownerEmail: playlistData.ownerEmail,
                 ownerName: ownerName,
                 songs: playlistData.songs || [],
-                published: false, // Start unpublished
+                published: true, // Start published (for testing/dev purposes)
                 listens: 0,
                 uniqueListeners: [],
                 createdDate: new Date(),
