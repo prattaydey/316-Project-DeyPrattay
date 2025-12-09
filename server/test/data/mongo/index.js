@@ -59,6 +59,9 @@ async function resetMongo() {
     // Key: "title|artist|year" -> { song data, addedBy, addedByName, playlistCount }
     const songCatalog = new Map();
     
+    // email -> [playlistId, playlistId, ...]
+    const userPlaylistsMap = {};
+    
     for (const playlistData of testData.playlists) {
         try {
             const ownerName = userMap[playlistData.ownerEmail];
@@ -81,6 +84,12 @@ async function resetMongo() {
             });
             await playlist.save();
             playlistSuccessCount++;
+            
+            // Track this playlist ID for the owner
+            if (!userPlaylistsMap[playlistData.ownerEmail]) {
+                userPlaylistsMap[playlistData.ownerEmail] = [];
+            }
+            userPlaylistsMap[playlistData.ownerEmail].push(playlist._id);
             
             // Add songs to the catalog tracker
             for (const song of (playlistData.songs || [])) {
@@ -108,6 +117,20 @@ async function resetMongo() {
         } catch (err) {
             playlistFailCount++;
             console.log(`Failed to create playlist "${playlistData.name}":`, err.message);
+        }
+    }
+    
+    // Update each user's playlists array with their playlist IDs
+    console.log("\nUpdating user playlist references...");
+    for (const [email, playlistIds] of Object.entries(userPlaylistsMap)) {
+        try {
+            await User.findOneAndUpdate(
+                { email: email },
+                { $set: { playlists: playlistIds } }
+            );
+            console.log(`Updated ${email} with ${playlistIds.length} playlists`);
+        } catch (err) {
+            console.log(`Failed to update playlists for ${email}:`, err.message);
         }
     }
     

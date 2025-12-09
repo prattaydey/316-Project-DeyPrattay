@@ -1,118 +1,227 @@
-import { useContext, useState } from 'react'
-import { GlobalStoreContext } from '../store'
-import Box from '@mui/material/Box';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import IconButton from '@mui/material/IconButton';
-import ListItem from '@mui/material/ListItem';
-import TextField from '@mui/material/TextField';
+import { useState } from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import Button from '@mui/material/Button';
 
-/*
-    This is a card in our list of top 5 lists. It lets select
-    a list for editing and it has controls for changing its 
-    name or deleting it.
-    
-    @author McKilla Gorilla
-*/
-function PlaylistCard(props) {
-    const { store } = useContext(GlobalStoreContext);
-    const [editActive, setEditActive] = useState(false);
-    const [text, setText] = useState("");
-    const { idNamePair } = props;
+export default function PlaylistCard({ 
+    playlist, 
+    isOwner, 
+    onPlay, 
+    onCopy, 
+    onDelete,
+    onRefresh 
+}) {
+    const [expanded, setExpanded] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editName, setEditName] = useState(playlist?.name || '');
 
-    function handleLoadList(event, id) {
-        console.log("handleLoadList for " + id);
-        if (!event.target.disabled) {
-            let _id = event.target.id;
-            if (_id.indexOf('list-card-text-') >= 0)
-                _id = ("" + _id).substring("list-card-text-".length);
+    // Guard against undefined playlist
+    if (!playlist) {
+        return null;
+    }
 
-            console.log("load " + event.target.id);
+    const handleToggleExpand = () => {
+        setExpanded(!expanded);
+    };
 
-            // CHANGE THE CURRENT LIST
-            store.setCurrentList(id);
+    const handleEdit = () => {
+        setIsEditing(true);
+        setEditName(playlist?.name || '');
+    };
+
+    const handleSaveName = async () => {
+        if (editName.trim() === '') return;
+        
+        try {
+            const response = await fetch(`http://localhost:4000/store/playlist/${playlist.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({ name: editName.trim() })
+            });
+            
+            if (response.ok) {
+                setIsEditing(false);
+                onRefresh();
+            }
+        } catch (error) {
+            console.error('Error updating playlist:', error);
         }
-    }
+    };
 
-    function handleToggleEdit(event) {
-        event.stopPropagation();
-        toggleEdit();
-    }
-
-    function toggleEdit() {
-        let newActive = !editActive;
-        if (newActive) {
-            store.setIsListNameEditActive();
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSaveName();
+        } else if (e.key === 'Escape') {
+            setIsEditing(false);
+            setEditName(playlist?.name || '');
         }
-        setEditActive(newActive);
-    }
+    };
 
-    async function handleDeleteList(event, id) {
-        event.stopPropagation();
-        //let _id = event.target.id;
-        //_id = ("" + _id).substring("delete-list-".length);
-        store.markListForDeletion(id);
-    }
-
-    function handleKeyPress(event) {
-        if (event.code === "Enter") {
-            let id = event.target.id.substring("list-".length);
-            store.changeListName(id, text);
-            toggleEdit();
+    const handlePublish = async () => {
+        try {
+            const response = await fetch(`http://localhost:4000/store/playlist/${playlist.id}/publish`, {
+                method: 'PUT',
+                credentials: 'include'
+            });
+            
+            if (response.ok) {
+                onRefresh();
+            }
+        } catch (error) {
+            console.error('Error publishing playlist:', error);
         }
-    }
-    function handleUpdateText(event) {
-        setText(event.target.value);
-    }
+    };
 
-    let cardElement =
-        <ListItem
-            id={idNamePair._id}
-            key={idNamePair._id}
-            sx={{borderRadius:"25px", p: "10px", bgcolor: '#8000F00F', marginTop: '15px', display: 'flex', /*p: 1*/ }}
-            style={{transform:"translate(1%,0%)", width: '98%', fontSize: '48pt' }}
-            button
-            onClick={(event) => {
-                handleLoadList(event, idNamePair._id)
-            }}
-        >
-            <Box sx={{ p: 1, flexGrow: 1 }}>{idNamePair.name}</Box>
-            <Box sx={{ p: 1 }}>
-                <IconButton onClick={handleToggleEdit} aria-label='edit'>
-                    <EditIcon style={{fontSize:'48pt'}} />
-                </IconButton>
-            </Box>
-            <Box sx={{ p: 1 }}>
-                <IconButton onClick={(event) => {
-                        handleDeleteList(event, idNamePair._id)
-                    }} aria-label='delete'>
-                    <DeleteIcon style={{fontSize:'48pt'}} />
-                </IconButton>
-            </Box>
-        </ListItem>
+    // Get avatar - use owner's avatar or a default
+    const getAvatarDisplay = () => {
+        // For now, use a colored circle with first letter
+        const letter = playlist.ownerName?.charAt(0).toUpperCase() || 'P';
+        const colors = ['#7b68a6', '#5c4d7d', '#9c27b0', '#673ab7', '#3f51b5'];
+        const colorIndex = playlist.ownerName?.charCodeAt(0) % colors.length || 0;
+        
+        return (
+            <div 
+                className="playlist-avatar" 
+                style={{ backgroundColor: colors[colorIndex] }}
+            >
+                {letter}
+            </div>
+        );
+    };
 
-    if (editActive) {
-        cardElement =
-            <TextField
-                margin="normal"
-                required
-                fullWidth
-                id={"list-" + idNamePair._id}
-                label="Playlist Name"
-                name="name"
-                autoComplete="Playlist Name"
-                className='list-card'
-                onKeyPress={handleKeyPress}
-                onChange={handleUpdateText}
-                defaultValue={idNamePair.name}
-                inputProps={{style: {fontSize: 48}}}
-                InputLabelProps={{style: {fontSize: 24}}}
-                autoFocus
-            />
-    }
     return (
-        cardElement
+        <div className={`playlist-card ${isOwner ? 'owned' : ''}`}>
+            <div className="playlist-card-main">
+                {getAvatarDisplay()}
+                
+                <div className="playlist-card-info">
+                    {isEditing ? (
+                        <input
+                            type="text"
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            onKeyDown={handleKeyPress}
+                            onBlur={handleSaveName}
+                            autoFocus
+                            className="playlist-name-input"
+                        />
+                    ) : (
+                        <div className="playlist-name">{playlist.name}</div>
+                    )}
+                    <div className="playlist-owner">{playlist.ownerName}</div>
+                </div>
+                
+                <div className="playlist-card-actions">
+                    {isOwner && (
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={handleEdit}
+                            sx={{
+                                borderColor: '#5c4d7d',
+                                color: '#5c4d7d',
+                                fontSize: '11px',
+                                py: 0.3,
+                                px: 1,
+                                minWidth: 'auto',
+                                '&:hover': { borderColor: '#7b68a6', backgroundColor: '#f3e5f5' }
+                            }}
+                        >
+                            Edit
+                        </Button>
+                    )}
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={onCopy}
+                        sx={{
+                            borderColor: '#5c4d7d',
+                            color: '#5c4d7d',
+                            fontSize: '11px',
+                            py: 0.3,
+                            px: 1,
+                            minWidth: 'auto',
+                            '&:hover': { borderColor: '#7b68a6', backgroundColor: '#f3e5f5' }
+                        }}
+                    >
+                        Copy
+                    </Button>
+                    <Button
+                        variant="contained"
+                        size="small"
+                        onClick={onPlay}
+                        sx={{
+                            backgroundColor: '#5c4d7d',
+                            fontSize: '11px',
+                            py: 0.3,
+                            px: 1,
+                            minWidth: 'auto',
+                            '&:hover': { backgroundColor: '#7b68a6' }
+                        }}
+                    >
+                        Play
+                    </Button>
+                    
+                    <button className="expand-btn" onClick={handleToggleExpand}>
+                        {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    </button>
+                </div>
+            </div>
+            
+            {/* Expanded Song List */}
+            {expanded && (
+                <div className="playlist-card-songs">
+                    {playlist.songs && playlist.songs.length > 0 ? (
+                        playlist.songs.map((song, index) => (
+                            <div key={index} className="playlist-song-item">
+                                {index + 1}. {song.title} by {song.artist} ({song.year})
+                            </div>
+                        ))
+                    ) : (
+                        <div className="no-songs">No songs in this playlist</div>
+                    )}
+                    
+                    {/* Owner Actions */}
+                    {isOwner && (
+                        <div className="playlist-owner-actions">
+                            {!playlist.published && (
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    onClick={handlePublish}
+                                    sx={{
+                                        backgroundColor: '#4caf50',
+                                        fontSize: '11px',
+                                        '&:hover': { backgroundColor: '#66bb6a' }
+                                    }}
+                                >
+                                    Publish
+                                </Button>
+                            )}
+                            <Button
+                                variant="contained"
+                                size="small"
+                                onClick={onDelete}
+                                sx={{
+                                    backgroundColor: '#f44336',
+                                    fontSize: '11px',
+                                    '&:hover': { backgroundColor: '#ef5350' }
+                                }}
+                            >
+                                Delete
+                            </Button>
+                        </div>
+                    )}
+                </div>
+            )}
+            
+            {/* Listeners Count */}
+            <div className="playlist-listeners">
+                {playlist.listens || 0} Listeners
+            </div>
+        </div>
     );
 }
-
-export default PlaylistCard;

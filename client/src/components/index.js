@@ -5,13 +5,13 @@ import MUIEditCatalogSongModal from './MUIEditCatalogSongModal'
 import EditToolbar from './EditToolbar'
 import HomeScreen from './HomeScreen'   
 import HomeWrapper from './HomeWrapper'
-import ListCard from './PlaylistCard'
 import LoginScreen from './LoginScreen'
 import MUIDeleteModal from './MUIDeleteModal'
 import MUIEditSongModal from './MUIEditSongModal'
 import MUIErrorModal from './MUIErrorModal'
-//import MUIRemoveSongModal from './MUIRemoveSongModal'
+import PlaylistCard from './PlaylistCard'
 import PlaylistsScreen from './PlaylistsScreen'
+import PlayPlaylistModal from './PlayPlaylistModal'
 import RegisterScreen from './RegisterScreen'
 import SongCard from './SongCard'
 import SongCatalogCard from './SongCatalogCard'
@@ -33,13 +33,13 @@ export {
     EditToolbar, 
     HomeScreen,
     HomeWrapper,
-    ListCard, 
     LoginScreen,
     MUIDeleteModal,
     MUIEditSongModal,
     MUIErrorModal,
-    //MUIRemoveSongModal,
+    PlaylistCard,
     PlaylistsScreen,
+    PlayPlaylistModal,
     SongCard,
     SongCatalogCard,
     SongsCatalogScreen,

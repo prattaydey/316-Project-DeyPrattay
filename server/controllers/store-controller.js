@@ -93,7 +93,16 @@ getPlaylists = async (req, res) => {
     
     try {
         const db = req.app.locals.db;
-        const { view, search, songSearch, sortBy, sortOrder } = req.query;
+        const { 
+            view, 
+            name, 
+            ownerName, 
+            songTitle, 
+            songArtist, 
+            songYear, 
+            sortBy, 
+            sortOrder 
+        } = req.query;
         
         let user = null;
         if (userId) {
@@ -108,42 +117,61 @@ getPlaylists = async (req, res) => {
         if (view === 'home' && user) {
             // User's own playlists (published and unpublished)
             lists = lists.filter(p => p.ownerEmail === user.email);
-        } else if (view === 'all') {
-            // All published playlists
+        } else if (view === 'user' && ownerName) {
+            // Playlists by specific user (only published, unless it's the current user)
+            lists = lists.filter(p => {
+                const matchesOwner = p.ownerName.toLowerCase().includes(ownerName.toLowerCase());
+                const isOwnPlaylist = user && p.ownerEmail === user.email;
+                return matchesOwner && (p.published || isOwnPlaylist);
+            });
+        } else if (view === 'all' || !user) {
+            // All published playlists (for guests or "all" view)
             lists = lists.filter(p => p.published);
-        } else if (view === 'user' && search) {
-            // Playlists by specific user (only published)
-            lists = lists.filter(p => p.published && p.ownerName === search);
-        } else if (!view && user) {
-            // Default: user's own playlists
-            lists = lists.filter(p => p.ownerEmail === user.email);
         } else {
-            // Guest with no view specified: show all published
-            lists = lists.filter(p => p.published);
+            // Default for logged-in user: their own playlists
+            lists = lists.filter(p => p.ownerEmail === user.email);
         }
 
         // Search by playlist name
-        if (search && view !== 'user') {
-            if (view === 'home') {
-                // Home view: name starts with search text
-                lists = lists.filter(p => 
-                    p.name.toLowerCase().startsWith(search.toLowerCase())
-                );
-            } else {
-                // All lists view: name matches exactly
-                lists = lists.filter(p => 
-                    p.name.toLowerCase() === search.toLowerCase()
-                );
-            }
+        if (name) {
+            lists = lists.filter(p => 
+                p.name.toLowerCase().includes(name.toLowerCase())
+            );
+        }
+
+        // Search by owner name (if not already filtered by view=user)
+        if (ownerName && view !== 'user') {
+            lists = lists.filter(p => 
+                p.ownerName.toLowerCase().includes(ownerName.toLowerCase())
+            );
         }
 
         // Filter by song title
-        if (songSearch) {
+        if (songTitle) {
             lists = lists.filter(p => 
-                p.songs.some(s => 
-                    s.title.toLowerCase().includes(songSearch.toLowerCase())
+                p.songs && p.songs.some(s => 
+                    s.title && s.title.toLowerCase().includes(songTitle.toLowerCase())
                 )
             );
+        }
+
+        // Filter by song artist
+        if (songArtist) {
+            lists = lists.filter(p => 
+                p.songs && p.songs.some(s => 
+                    s.artist && s.artist.toLowerCase().includes(songArtist.toLowerCase())
+                )
+            );
+        }
+
+        // Filter by song year
+        if (songYear) {
+            const yearNum = parseInt(songYear);
+            if (!isNaN(yearNum)) {
+                lists = lists.filter(p => 
+                    p.songs && p.songs.some(s => s.year === yearNum)
+                );
+            }
         }
 
         // Sort playlists
@@ -152,8 +180,8 @@ getPlaylists = async (req, res) => {
                 let comparison = 0;
                 
                 switch (sortBy) {
-                    case 'listeners':
-                        comparison = (b.uniqueListeners?.length || 0) - (a.uniqueListeners?.length || 0);
+                    case 'listens':
+                        comparison = (b.listens || 0) - (a.listens || 0);
                         break;
                     case 'name':
                         comparison = a.name.localeCompare(b.name);
