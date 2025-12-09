@@ -303,6 +303,89 @@ body {
   font-size: 14px;
 }
 
+/* Login Screen */
+#login-screen {
+  position: absolute;
+  left: 0;
+  top: 10%;
+  width: 100%;
+  height: 90%;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+#login-content {
+  background-color: #f5f5dc;
+  width: 100%;
+  padding: 60px 40px;
+  border: 2px solid #333;
+  border-top: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-icon {
+  margin-bottom: 10px;
+}
+
+.login-title {
+  font-size: 32px;
+  font-weight: normal;
+  margin-bottom: 40px;
+  font-family: "Lexend Exa", sans-serif;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-fields {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.login-submit-btn:hover {
+  background-color: #555;
+}
+
+.login-signup-link {
+  display: block;
+  text-align: center;
+  color: #e53935;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.login-signup-link:hover {
+  text-decoration: underline;
+}
+
+.login-copyright {
+  margin-top: auto;
+  padding-top: 30px;
+  color: #666;
+  font-size: 14px;
+}
+
 .avatar-requirements {
   font-size: 9px;
   color: #666;

@@ -138,45 +138,47 @@ export default function AppBanner() {
                         </Box>
                     </Link>
                     
-                    {/* Navigation Tabs - show for both logged in users and guests */}
-                    <Box sx={{ display: 'flex', ml: 2, gap: 1 }}>
-                        <Button
-                            component={Link}
-                            to="/playlists"
-                            sx={{
-                                backgroundColor: location.pathname === '/playlists' || location.pathname === '/' ? '#9c27b0' : '#7b1fa2',
-                                color: 'white',
-                                borderRadius: '20px',
-                                px: 2,
-                                py: 0.5,
-                                fontSize: '12px',
-                                textTransform: 'none',
-                                '&:hover': {
-                                    backgroundColor: '#9c27b0'
-                                }
-                            }}
-                        >
-                            Playlists
-                        </Button>
-                        <Button
-                            component={Link}
-                            to="/songs"
-                            sx={{
-                                backgroundColor: location.pathname === '/songs' ? '#9c27b0' : '#7b1fa2',
-                                color: 'white',
-                                borderRadius: '20px',
-                                px: 2,
-                                py: 0.5,
-                                fontSize: '12px',
-                                textTransform: 'none',
-                                '&:hover': {
-                                    backgroundColor: '#9c27b0'
-                                }
-                            }}
-                        >
-                            Song Catalog
-                        </Button>
-                    </Box>
+                    {/* Navigation Tabs - hide on splash screen, register, and login screens */}
+                    {!((location.pathname === '/' && !auth.loggedIn) || location.pathname === '/register/' || location.pathname === '/login/') && (
+                        <Box sx={{ display: 'flex', ml: 2, gap: 1 }}>
+                            <Button
+                                component={Link}
+                                to="/playlists"
+                                sx={{
+                                    backgroundColor: location.pathname === '/playlists' || (location.pathname === '/' && auth.loggedIn) ? '#9c27b0' : '#7b1fa2',
+                                    color: 'white',
+                                    borderRadius: '20px',
+                                    px: 2,
+                                    py: 0.5,
+                                    fontSize: '12px',
+                                    textTransform: 'none',
+                                    '&:hover': {
+                                        backgroundColor: '#9c27b0'
+                                    }
+                                }}
+                            >
+                                Playlists
+                            </Button>
+                            <Button
+                                component={Link}
+                                to="/songs"
+                                sx={{
+                                    backgroundColor: location.pathname === '/songs' ? '#9c27b0' : '#7b1fa2',
+                                    color: 'white',
+                                    borderRadius: '20px',
+                                    px: 2,
+                                    py: 0.5,
+                                    fontSize: '12px',
+                                    textTransform: 'none',
+                                    '&:hover': {
+                                        backgroundColor: '#9c27b0'
+                                    }
+                                }}
+                            >
+                                Song Catalog
+                            </Button>
+                        </Box>
+                    )}
                     
                     {/* Title - centered */}
                     <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
